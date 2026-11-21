@@ -53,7 +53,7 @@
 <header class="top"><b>Hotel Security Management System</b><small>SECURITY DEPARTMENT</small></header>
 <section class="content" id="home">
 <section class="overview-report" id="reportPage">
-<h1>Security Daily Summary</h1><div class="sub">รายงานสรุปภาพรวมการปฏิบัติงานประจำวันจากทั้ง 3 ระบบ</div>
+<h1>Security Daily Summary</h1>
 <div class="report-toolbar"><label for="summaryDate">วันที่รายงาน</label><input type="date" id="summaryDate"><button class="open" onclick="loadDailySummary()">อัปเดตข้อมูลล่าสุด</button><button class="open" id="summaryPdfBtn" onclick="window.print()" disabled>Export PDF</button><button class="open" id="summaryCsvBtn" onclick="exportSummaryCsv()" disabled>Export Excel (CSV)</button></div>
 <div class="report-toolbar" id="summaryLogin"><label for="summaryUser">User ID</label><input id="summaryUser" placeholder="เช่น SEC001 หรือ ADMIN001" autocomplete="username"><label for="summaryPassword">Password</label><input id="summaryPassword" type="password" placeholder="รหัสผ่าน" autocomplete="current-password"><button class="open" onclick="summaryLoginNow()">เข้าสู่ระบบเจ้าหน้าที่</button><span id="summaryAuthStatus" class="sub" style="margin:0"></span></div>
 <div class="report-toolbar" id="summarySession" style="display:none"><span id="summaryStaffLabel"></span><button class="open" onclick="summaryLogout()">ออกจากระบบ</button></div>
