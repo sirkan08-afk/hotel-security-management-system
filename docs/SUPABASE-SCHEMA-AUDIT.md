@@ -74,3 +74,26 @@ No Contractor table DDL, Storage policies, or RLS policies were found in the ins
 
 ## Safety status
 No live database, Storage object, user, policy, or existing application was changed during this audit.
+
+
+## 2026-11-21 follow-up — Work Permit frontend flow inspection
+
+The existing `work-permit/index.html` in `sirkan08-afk/Contactor-visitor` was inspected.
+
+Observed frontend behavior:
+- Uses the Patrol/Work Permit Supabase project `nldoneixnuapuzpeeznl` with a publishable key in the browser.
+- Public submission invokes Edge Function `submit-work-permit` with `action: "submit"` and a Cloudflare Turnstile response token.
+- Public tracking invokes the same function with `action: "track"`.
+- Staff sign-in uses the email pattern `<staff_user_id lowercase>@patrol.com`.
+- After staff sign-in, the frontend reads `user_roles.role` for the authenticated user.
+- The staff approval queue reads `work_permit_department_approvals`; ADMIN sees all departments, while other roles are filtered to their own department and pending status.
+- The staff UI reads permit and worker details from `work_permits` and `work_permit_workers`.
+- Inspection save logic checks for ADMIN, SAFETY, or SECURITY and writes checklist rows to `work_permit_checklists`.
+
+Work Permit status labels visible in the frontend:
+- Permit: `draft`, `submitted`, `under_review`, `approved`, `rejected`, `revision_requested`, `closed`.
+- Department approval: `pending`, `approved`, `rejected`, `revision_requested`.
+
+**Important limitation:** The deployed Edge Function source was not found in the inspected GitHub repository at the expected paths, and GitHub code search returned no matching source file. The frontend alone does not prove the deployed function's validation, authorization, Turnstile verification, database writes, tracking-code hashing, or rate limiting. These remain unverified. Do not treat the public submission/tracking flow as security-audited until the deployed function source is reviewed.
+
+No production database, Edge Function, Storage policy, or existing app was changed during this follow-up.
