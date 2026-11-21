@@ -21,6 +21,9 @@
 .report-card b{font-size:22px;font-weight:800;color:#142b43;font-variant-numeric:tabular-nums}
 .metric-line{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:5px 0;border-bottom:1px solid #edf1f5}
 .metric-line:last-child{border-bottom:0}
+.permit-status-list{display:flex;flex-wrap:wrap;gap:7px;margin-top:10px;font-size:12px}
+.permit-status-list span{padding:6px 9px;border-radius:7px;background:#eef2ff;color:#3730a3;font-weight:700}
+.permit-status-list .approved{background:#dcfce7;color:#166534}.permit-status-list .rejected{background:#fee2e2;color:#991b1b}.permit-status-list .under_review,.permit-status-list .submitted{background:#fef3c7;color:#92400e}.permit-status-list .closed{background:#e2e8f0;color:#334155}
 .metric-line span{font-size:13px;color:#536579}
 .metric-line.good b,.status-good{color:#15803d!important}.metric-line.warn b,.status-warn{color:#b45309!important}.metric-line.bad b,.status-bad{color:#b91c1c!important}
 .state-pill{display:inline-block;border-radius:20px;padding:5px 10px;font-size:11px;font-weight:700}
@@ -55,9 +58,9 @@
 <div class="report-toolbar" id="summaryLogin"><label for="summaryUser">User ID</label><input id="summaryUser" placeholder="เช่น SEC001 หรือ ADMIN001" autocomplete="username"><label for="summaryPassword">Password</label><input id="summaryPassword" type="password" placeholder="รหัสผ่าน" autocomplete="current-password"><button class="open" onclick="summaryLoginNow()">เข้าสู่ระบบเจ้าหน้าที่</button><span id="summaryAuthStatus" class="sub" style="margin:0"></span></div>
 <div class="report-toolbar" id="summarySession" style="display:none"><span id="summaryStaffLabel"></span><button class="open" onclick="summaryLogout()">ออกจากระบบ</button></div>
 <div class="report-grid">
-<article class="report-card"><span class="pending" id="contractorBadge">รอข้อมูล</span><h3>Contractor Registration</h3><p>รายการเข้า: <b id="contractorEntries">—</b><br>จำนวนทีมงาน: <b id="contractorTeam">—</b><br>ลงเวลาออกแล้ว: <b id="contractorOut">—</b><br>ยังอยู่ในพื้นที่: <b id="contractorInside">—</b></p></article>
-<article class="report-card"><span class="pending" id="permitBadge">รอข้อมูล</span><h3>Work Permit</h3><p>ใบอนุญาตทั้งหมด: <b id="permitTotal">—</b><br>รายละเอียดสถานะ:<br><span id="permitStatuses">—</span></p></article>
-<article class="report-card"><span class="pending" id="patrolBadge">รอข้อมูล</span><h3>Security Patrol</h3><p>จุดตรวจที่เปิดใช้งาน: <b id="patrolPoints">—</b><br>บันทึกผลตรวจ: <b id="patrolChecks">—</b><br>ปกติ: <b id="patrolNormal">—</b> · ผิดปกติ: <b id="patrolAbnormal">—</b><br>เข้าตรวจไม่ได้: <b id="patrolInaccessible">—</b><br>รอบที่มีบันทึก: <b id="patrolRounds">—</b></p></article>
+<article class="report-card"><span class="pending" id="contractorBadge">รอข้อมูล</span><h3>Contractor Registration</h3><div class="metric-line"><span>รายการเข้า</span><b id="contractorEntries">—</b></div><div class="metric-line"><span>จำนวนทีมงาน</span><b id="contractorTeam">—</b></div><div class="metric-line good"><span>ลงเวลาออกแล้ว</span><b id="contractorOut">—</b></div><div class="metric-line warn"><span>ยังอยู่ในพื้นที่</span><b id="contractorInside">—</b></div></article>
+<article class="report-card"><span class="pending" id="permitBadge">รอข้อมูล</span><h3>Work Permit</h3><div class="metric-line"><span>ใบอนุญาตทั้งหมด</span><b id="permitTotal">—</b></div><div id="permitStatuses" class="permit-status-list">—</div></article>
+<article class="report-card"><span class="pending" id="patrolBadge">รอข้อมูล</span><h3>Security Patrol</h3><div class="metric-line"><span>จุดตรวจที่เปิดใช้งาน</span><b id="patrolPoints">—</b></div><div class="metric-line"><span>บันทึกผลตรวจ</span><b id="patrolChecks">—</b></div><div class="metric-line good"><span>ปกติ</span><b id="patrolNormal">—</b></div><div class="metric-line bad"><span>ผิดปกติ</span><b id="patrolAbnormal">—</b></div><div class="metric-line warn"><span>เข้าไม่ได้</span><b id="patrolInaccessible">—</b></div><div class="metric-line"><span>รอบที่มีบันทึก</span><b id="patrolRounds">—</b></div></article>
 </div>
 <section class="detail-section"><h2>รายละเอียดผู้รับเหมา / Contractor Details</h2><div class="table-wrap"><table class="detail-table"><thead><tr><th>ลำดับ</th><th>ชื่อ-นามสกุล</th><th>บริษัท</th><th>แผนก</th><th>สถานที่ปฏิบัติงาน</th><th>ทะเบียนรถ</th><th>จำนวนทีม</th><th>เวลาเข้า</th><th>เวลาออก</th></tr></thead><tbody id="contractorDetailRows"><tr><td colspan="9">รอข้อมูล</td></tr></tbody></table></div></section>
 <section class="detail-section"><h2>รายการ Work Permit ประจำวัน</h2><div class="table-wrap"><table class="detail-table"><thead><tr><th>ลำดับ</th><th>หมายเลข WP</th><th>ชื่องาน</th><th>สถานะ</th></tr></thead><tbody id="permitDetailRows"><tr><td colspan="4">รอข้อมูล</td></tr></tbody></table></div></section>
@@ -124,7 +127,8 @@ async function loadDailySummary(silent=false){
   document.getElementById("contractorInside").textContent=result.contractor.stillOnSite;
   document.getElementById("permitTotal").textContent=result.workPermit.total;
   const statusLabels={draft:"ฉบับร่าง",submitted:"ส่งคำขอแล้ว",under_review:"กำลังตรวจสอบ",approved:"อนุมัติแล้ว",rejected:"ไม่อนุมัติ",revision_requested:"รอแก้ไขข้อมูล",closed:"ปิดงานแล้ว"};
-  document.getElementById("permitStatuses").textContent=Object.entries(result.workPermit.statuses).map(([k,v])=>(statusLabels[k]||k)+": "+v).join(" · ")||"ไม่มีรายการ";
+  document.getElementById("permitStatuses").innerHTML=Object.entries(result.workPermit.statuses).map(([k,v])=>'<span class="'+escStatusClass(k)+'">'+(statusLabels[k]||k)+": "+v+'</span>').join("")||"ไม่มีรายการ";
+  const escStatusClass=k=>String(k||"").replace(/[^a-z0-9_-]/gi,"");
   const escHtml=v=>String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
   const timeText=v=>v?new Date(v).toLocaleTimeString("th-TH",{timeZone:"Asia/Bangkok",hour:"2-digit",minute:"2-digit"}):"-";
   const contractorRows=result.contractor.entriesList||[];
