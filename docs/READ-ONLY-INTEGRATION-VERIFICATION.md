@@ -21,7 +21,7 @@ The user ran authenticated sign-in and SELECT-only checks from the integration t
 | Work Permit | `work_permit_department_approvals` | 6 |
 | Work Permit | `user_roles` | 5 |
 
-**Result:** 10 table checks were displayed as successful (the earlier test page showed 4 rows of results; the later expanded test showed 9 rows for Patrol + Work Permit, in addition to Contractor). A zero-row result for `work_permit_checklists` is a successful query, not evidence of an error.
+**Result:** 10 table checks were displayed as successful. A zero-row result for `work_permit_checklists` is a successful query, not evidence of an error.
 
 ## 2. Contractor Registration access checks
 
@@ -33,35 +33,59 @@ The SQL Editor screenshots showed:
 - DELETE policy `admin001_delete_contractor_entries`: restricted by the JWT email claim to `admin001@contractor.local`.
 - Table privilege check for role `authenticated`: SELECT, INSERT, UPDATE and DELETE returned true; TRUNCATE returned false.
 - The column-privilege listing showed `is_grantable = NO`; this means the role cannot grant those privileges onward. It does not mean the privilege itself is absent.
-- The role-table-grants listing showed `is_grantable = NO` for authenticated grants; this is also not a denial of the underlying privilege.
 
-## 3. Contractor image Storage policy checks
+## 3. Contractor image Storage checks
 
-The screenshots showed four policies on `storage.objects` for bucket `contractor-private`:
+Bucket `contractor-private` was confirmed in the Contractor Registration project with:
 
-- SELECT: authenticated staff read contractor images, constrained to the bucket.
-- INSERT: authenticated staff upload contractor images, constrained to the bucket.
-- DELETE: authenticated staff delete contractor images, constrained to the bucket.
-- An additional admin-specific DELETE policy for the same bucket.
+- `public = false` (private bucket).
+- Maximum file size: 5,242,880 bytes (5 MB).
+- Allowed MIME types: image/jpeg, image/png, image/webp.
 
-The screenshots do not establish whether the bucket's public flag is disabled, nor do they show an UPDATE policy for Storage objects. Verify bucket visibility and any required update behavior before enabling image operations in the new app.
+The user-provided Storage policy query showed four policies on `storage.objects` for this bucket:
+
+- SELECT: authenticated staff read contractor images, constrained only by `bucket_id = 'contractor-private'`.
+- INSERT: authenticated staff upload contractor images, constrained only by the bucket.
+- DELETE: authenticated staff delete contractor images, constrained only by the bucket.
+- Additional admin-specific DELETE policy for the same bucket, with an ADMIN001 email condition.
+
+**Security observation:** the general authenticated DELETE policy means any authenticated staff account allowed by the policy can delete any object in this bucket; the ADMIN001 policy is additive and does not restrict the general policy. The general SELECT policy allows authenticated staff to read all objects in the bucket. Do not change these production policies as part of this read-only integration phase. A separate, reviewed permissions change would be needed to narrow deletion rights.
+
+### 3.1 Contractor image path and object consistency
+
+The user-provided read-only SQL results established:
+
+| Check | Result |
+|---|---:|
+| Contractor entries | 211 |
+| Entries with ID-card path | 134 |
+| Entries with vehicle-image path | 42 |
+| ID-card paths without a folder segment | 0 |
+| Vehicle paths without a folder segment | 0 |
+| ID-card paths found in Storage | 134 / 134 |
+| Vehicle paths found in Storage | 42 / 42 |
+| Missing referenced Storage objects | 0 |
+
+Storage object names were observed under first-level folders such as `ADMIN001/` and `SEC001/`, with timestamp-based filenames ending in `-id-card.jpg` or `-vehicle.jpg`. The path comparison found every referenced object (176 total) in the private bucket.
+
+These checks confirm path/object existence at the time of testing. They do not independently verify that every object can be downloaded by every intended user, nor do they validate the image contents.
 
 ## 4. Important safety interpretation
 
-- These checks establish that the test session could sign in and run SELECT queries and return the row counts shown.
+- These checks establish that the supplied test session could sign in and run SELECT queries and return the row counts shown.
 - They do **not** establish that every application workflow, image download, Edge Function, or every user's access is correct.
-- Do not add write, update, delete, or storage mutation calls to the new app yet.
+- Do not add write, update, delete, or Storage mutation calls to the new app yet.
 - Do not change existing app authentication or existing policies as part of this read-only phase.
 - Never place a Supabase `service_role` secret in browser code.
 - Keep the old Contractor, Patrol, and Work Permit apps unchanged while the new app is being validated.
 
 ## 5. Next verification gates
 
-1. Confirm the `contractor-private` bucket is private in Supabase Storage settings.
-2. Test SELECT for a normal authenticated staff account, not only ADMIN001.
-3. Verify that the new app can read the required tables without exposing private columns or images unnecessarily.
-4. Inspect Patrol and Work Permit policies and grants, and inspect the deployed `submit-work-permit` Edge Function separately.
+1. Test SELECT and private-image download with a normal authenticated staff account, not only ADMIN001.
+2. Confirm the actual login/email mapping for representative Patrol and Work Permit roles.
+3. Inspect the deployed `submit-work-permit` Edge Function separately, including authorization and public submission/tracking behavior; do not expose secret values.
+4. Verify any required image access from the new portal without adding broad Storage permissions.
 5. Only after these checks, prepare a separately reviewed write-access plan. No production writes are authorized by this document.
 
 ---
-This document records observations from the screenshots and test output supplied during the session. It is not an independent live audit and does not change any Supabase configuration.
+This document records observations from the user's SQL results and screenshots. It is not an independent live audit and does not change any Supabase configuration.
