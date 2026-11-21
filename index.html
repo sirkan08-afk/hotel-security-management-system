@@ -14,10 +14,12 @@
 .grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}.card{background:white;border:1px solid var(--line);border-radius:13px;padding:20px;box-shadow:0 2px 8px #10243a08;display:flex;flex-direction:column;min-height:220px}
 .icon{width:45px;height:45px;border-radius:11px;background:#eaf0f6;display:grid;place-items:center;font-size:23px;margin-bottom:15px}.card h2{font-size:17px;margin:0 0 7px}.card p{font-size:12px;color:var(--muted);line-height:1.65;margin:0 0 17px;flex:1}
 .open{display:inline-flex;align-items:center;justify-content:center;background:var(--blue);color:white;text-decoration:none;border:0;border-radius:8px;padding:11px 14px;font-size:13px;font-weight:bold;cursor:pointer}.open:hover{filter:brightness(1.12)}
-.status{font-size:10px;color:var(--green);margin-bottom:9px}.section{font-size:16px;margin:25px 0 12px}.note{background:#fff8e8;border:1px solid #f0dfb8;border-radius:9px;padding:13px 15px;font-size:12px;color:#795b1a;line-height:1.7;margin-top:18px}
+.status{font-size:10px;color:var(--green);margin-bottom:9px}.section{font-size:16px;margin:25px 0 12px}.report-toolbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;background:#fff;border:1px solid var(--line);padding:14px;border-radius:12px;margin:16px 0}.report-toolbar label{font-size:12px;color:var(--muted)}.report-toolbar input{padding:9px;border:1px solid var(--line);border-radius:7px;font:inherit}.report-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}.report-card{background:#fff;border:1px solid var(--line);border-radius:12px;padding:18px}.report-card h3{font-size:15px;margin:0 0 8px}.report-card p{font-size:12px;color:var(--muted);line-height:1.6;margin:0}.pending{display:inline-block;font-size:10px;color:#8a6418;background:#fff5d9;padding:5px 8px;border-radius:20px;margin-bottom:10px}.report-note{margin-top:16px;padding:14px;background:#f7f9fb;border:1px solid var(--line);border-radius:10px;font-size:12px;line-height:1.7;color:#536579}#reportPage{display:none}.note{background:#fff8e8;border:1px solid #f0dfb8;border-radius:9px;padding:13px 15px;font-size:12px;color:#795b1a;line-height:1.7;margin-top:18px}
 #workspace{display:none;flex:1;min-height:0;background:#e9eef3}#workspace.visible{display:flex;flex-direction:column}.workbar{background:#fff;border-bottom:1px solid var(--line);padding:10px 16px;display:flex;align-items:center;gap:10px}.workbar strong{font-size:13px}.workbar .spacer{flex:1}.workbar a{font-size:12px;color:var(--blue)}iframe{border:0;width:100%;height:100%;min-height:calc(100vh - 125px);background:#fff}
 @media(max-width:850px){.app{grid-template-columns:1fr}.side{padding:12px;gap:10px}.brand{padding:4px 8px 10px}nav{display:flex;overflow:auto}nav button{white-space:nowrap;padding:9px}.navlabel,.foot{display:none}.content{padding:16px}.top{padding:0 16px}.grid{grid-template-columns:1fr}iframe{min-height:calc(100vh - 150px)}}
-</style></head><body>
+</style><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>@media print{.side,.top,#home,#summaryLogin,#summarySession,.report-toolbar button{display:none!important}#reportPage{display:block!important;padding:0!important}.report-card{break-inside:avoid}body{background:#fff}.app{display:block}.main{display:block}.content{max-width:none;padding:0}}</style>
+</head><body>
 <div class="app"><aside class="side">
 <div class="brand"><b>HOTEL SECURITY</b><small>MANAGEMENT SYSTEM</small></div>
 <div class="navlabel">MAIN MENU</div>
@@ -26,6 +28,7 @@
 <button id="contractorNav" onclick="openApp('contractor')">♙ Contractor Registration</button>
 <button id="workNav" onclick="openApp('work')">▤ Work Permit</button>
 <button id="patrolNav" onclick="openApp('patrol')">⌖ Security Patrol</button>
+<button id="reportNav" onclick="showReport()">▤ รายงานสรุปประจำวัน</button>
 </nav>
 <div class="foot">SECURITY DEPARTMENT<br>Central access portal · v1.1</div>
 </aside><main class="main">
@@ -46,6 +49,18 @@
 </div>
 
 </section>
+<section class="content" id="reportPage">
+<h1>Security Daily Summary</h1><div class="sub">รายงานสรุปภาพรวมการปฏิบัติงานประจำวันจากทั้ง 3 ระบบ</div>
+<div class="report-toolbar"><label for="summaryDate">วันที่รายงาน</label><input type="date" id="summaryDate"><button class="open" onclick="loadDailySummary()">ค้นหาข้อมูล</button><button class="open" id="summaryPdfBtn" onclick="window.print()" disabled>Export PDF</button><button class="open" id="summaryCsvBtn" onclick="exportSummaryCsv()" disabled>Export Excel (CSV)</button></div>
+<div class="report-toolbar" id="summaryLogin"><label for="summaryUser">User ID</label><input id="summaryUser" placeholder="เช่น SEC001 หรือ ADMIN001" autocomplete="username"><label for="summaryPassword">Password</label><input id="summaryPassword" type="password" placeholder="รหัสผ่าน" autocomplete="current-password"><button class="open" onclick="summaryLoginNow()">เข้าสู่ระบบเจ้าหน้าที่</button><span id="summaryAuthStatus" class="sub" style="margin:0"></span></div>
+<div class="report-toolbar" id="summarySession" style="display:none"><span id="summaryStaffLabel"></span><button class="open" onclick="summaryLogout()">ออกจากระบบ</button></div>
+<div class="report-grid">
+<article class="report-card"><span class="pending" id="contractorBadge">รอข้อมูล</span><h3>Contractor Registration</h3><p>รายการเข้า: <b id="contractorEntries">—</b><br>จำนวนทีมงาน: <b id="contractorTeam">—</b><br>ลงเวลาออกแล้ว: <b id="contractorOut">—</b><br>ยังอยู่ในพื้นที่: <b id="contractorInside">—</b></p></article>
+<article class="report-card"><span class="pending" id="permitBadge">รอข้อมูล</span><h3>Work Permit</h3><p>ใบอนุญาตทั้งหมด: <b id="permitTotal">—</b><br>รายละเอียดสถานะ:<br><span id="permitStatuses">—</span></p></article>
+<article class="report-card"><span class="pending" id="patrolBadge">รอข้อมูล</span><h3>Security Patrol</h3><p>จุดตรวจที่เปิดใช้งาน: <b id="patrolPoints">—</b><br>บันทึกผลตรวจ: <b id="patrolChecks">—</b><br>ปกติ: <b id="patrolNormal">—</b> · ผิดปกติ: <b id="patrolAbnormal">—</b><br>เข้าตรวจไม่ได้: <b id="patrolInaccessible">—</b><br>รอบที่มีบันทึก: <b id="patrolRounds">—</b></p></article>
+</div>
+<div class="report-note" id="summaryStatus">กรุณาเข้าสู่ระบบด้วยบัญชีเจ้าหน้าที่ Work Permit (SEC001 / ADMIN001) เพื่อดูข้อมูลจริง ทั้งนี้ต้อง Deploy Edge Function และตั้งค่า Secrets ใน Supabase ก่อน</div>
+</section>
 <section id="workspace">
 <div class="workbar"><strong id="appTitle">ระบบ</strong><span class="spacer"></span><a id="newTab" href="#" target="_blank" rel="noopener">เปิดแท็บใหม่ ↗</a><button class="open" onclick="showHome()">กลับหน้าหลัก</button></div>
 <iframe id="appFrame" title="Security application" allow="camera; microphone; geolocation; clipboard-read; clipboard-write" referrerpolicy="strict-origin-when-cross-origin"></iframe>
@@ -58,6 +73,67 @@ const apps={
  patrol:{title:"Security Patrol",url:"https://sirkan08-afk.github.io/Contactor-visitor/patrol/"}
 };
 function setActive(id){document.querySelectorAll("nav button").forEach(b=>b.classList.remove("active"));document.getElementById(id).classList.add("active")}
+function showReport(){document.getElementById("home").style.display="none";document.getElementById("workspace").classList.remove("visible");document.getElementById("reportPage").style.display="block";setActive("reportNav")}
+const SUMMARY_SUPABASE_URL="https://nldoneixnuapuzpeeznl.supabase.co";
+const SUMMARY_SUPABASE_KEY="sb_publishable_igE41YhbVSgCQijy3nTCPg_3C-PyGiI";
+const summaryDb=window.supabase?.createClient(SUMMARY_SUPABASE_URL,SUMMARY_SUPABASE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:false}});
+let summaryPayload=null;
+async function summaryLoginNow(){
+ const user=document.getElementById("summaryUser").value.trim().replace(/@patrol\.com$/i,"");
+ const password=document.getElementById("summaryPassword").value;
+ const status=document.getElementById("summaryAuthStatus");
+ if(!summaryDb){status.textContent="โหลดระบบเข้าสู่ระบบไม่สำเร็จ";return}
+ if(!user||!password){status.textContent="กรุณากรอก User ID และ Password";return}
+ status.textContent="กำลังตรวจสอบบัญชี...";
+ const {data,error}=await summaryDb.auth.signInWithPassword({email:user.toLowerCase()+"@patrol.com",password});
+ if(error){status.textContent="เข้าสู่ระบบไม่สำเร็จ: "+error.message;return}
+ document.getElementById("summaryLogin").style.display="none";
+ document.getElementById("summarySession").style.display="flex";
+ document.getElementById("summaryStaffLabel").textContent="เข้าสู่ระบบแล้ว: "+user.toUpperCase();
+ status.textContent="เข้าสู่ระบบสำเร็จ";
+ await loadDailySummary();
+}
+async function summaryLogout(){
+ await summaryDb?.auth.signOut();summaryPayload=null;
+ document.getElementById("summarySession").style.display="none";
+ document.getElementById("summaryLogin").style.display="flex";
+ document.getElementById("summaryAuthStatus").textContent="ออกจากระบบแล้ว";
+ document.getElementById("summaryPdfBtn").disabled=true;document.getElementById("summaryCsvBtn").disabled=true;
+}
+async function loadDailySummary(){
+ const d=document.getElementById("summaryDate").value,status=document.getElementById("summaryStatus");
+ if(!d){status.textContent="กรุณาเลือกวันที่รายงาน";return}
+ const {data:{session}}=await summaryDb.auth.getSession();
+ if(!session){status.textContent="กรุณาเข้าสู่ระบบเจ้าหน้าที่ก่อน";return}
+ status.textContent="กำลังโหลดข้อมูลจากทั้ง 3 ระบบ...";
+ try{
+  const response=await fetch(SUMMARY_SUPABASE_URL+"/functions/v1/security-daily-summary",{method:"POST",headers:{Authorization:"Bearer "+session.access_token,apikey:SUMMARY_SUPABASE_KEY,"Content-Type":"application/json"},body:JSON.stringify({date:d})});
+  const result=await response.json();if(!response.ok)throw new Error(result.error||"ไม่สามารถโหลดข้อมูลได้");
+  summaryPayload=result;
+  document.getElementById("contractorEntries").textContent=result.contractor.entries;
+  document.getElementById("contractorTeam").textContent=result.contractor.teamMembers;
+  document.getElementById("contractorOut").textContent=result.contractor.checkedOut;
+  document.getElementById("contractorInside").textContent=result.contractor.stillOnSite;
+  document.getElementById("permitTotal").textContent=result.workPermit.total;
+  document.getElementById("permitStatuses").textContent=Object.entries(result.workPermit.statuses).map(([k,v])=>k+": "+v).join(" · ")||"ไม่มีรายการ";
+  document.getElementById("patrolPoints").textContent=result.patrol.activePoints;
+  document.getElementById("patrolChecks").textContent=result.patrol.recordedChecks;
+  document.getElementById("patrolNormal").textContent=result.patrol.normal;
+  document.getElementById("patrolAbnormal").textContent=result.patrol.abnormal;
+  document.getElementById("patrolInaccessible").textContent=result.patrol.inaccessible;
+  document.getElementById("patrolRounds").textContent=result.patrol.roundsRecorded.join(", ")||"ไม่มีบันทึก";
+  ["contractorBadge","permitBadge","patrolBadge"].forEach(id=>document.getElementById(id).textContent="โหลดข้อมูลแล้ว");
+  document.getElementById("summaryPdfBtn").disabled=false;document.getElementById("summaryCsvBtn").disabled=false;
+  status.textContent="ข้อมูลวันที่ "+d+" · อัปเดต "+new Date(result.generatedAt).toLocaleString("th-TH",{timeZone:"Asia/Bangkok"})+" · แหล่งข้อมูลจริงจาก 3 ระบบ";
+ }catch(err){summaryPayload=null;document.getElementById("summaryPdfBtn").disabled=true;document.getElementById("summaryCsvBtn").disabled=true;status.textContent="โหลดข้อมูลไม่สำเร็จ: "+err.message+" (ตรวจสอบการ Deploy Function และ Secrets ใน Supabase)";}
+}
+function exportSummaryCsv(){
+ if(!summaryPayload)return;
+ const p=summaryPayload,rows=[["Security Daily Summary",p.date],["Contractor Entries",p.contractor.entries],["Team Members",p.contractor.teamMembers],["Checked Out",p.contractor.checkedOut],["Still On Site",p.contractor.stillOnSite],["Work Permits",p.workPermit.total],...Object.entries(p.workPermit.statuses).map(([k,v])=>["Permit "+k,v]),["Patrol Active Points",p.patrol.activePoints],["Patrol Recorded Checks",p.patrol.recordedChecks],["Patrol Normal",p.patrol.normal],["Patrol Abnormal",p.patrol.abnormal],["Patrol Inaccessible",p.patrol.inaccessible]];
+ const csv="\uFEFF"+rows.map(row=>row.map(v=>'"'+String(v??"").replace(/"/g,'""')+'"').join(",")).join("\r\n");
+ const url=URL.createObjectURL(new Blob([csv],{type:"text/csv;charset=utf-8"})),a=document.createElement("a");a.href=url;a.download="Security-Daily-Summary-"+p.date+".csv";a.click();URL.revokeObjectURL(url);
+}
 function openApp(key){const app=apps[key];if(!app)return;document.getElementById("home").style.display="none";document.getElementById("workspace").classList.add("visible");document.getElementById("appTitle").textContent=app.title;document.getElementById("newTab").href=app.url;const frame=document.getElementById("appFrame");if(frame.src!==app.url)frame.src=app.url;setActive(key==="contractor"?"contractorNav":key==="work"?"workNav":"patrolNav")}
-function showHome(){document.getElementById("workspace").classList.remove("visible");document.getElementById("home").style.display="block";setActive("homeNav")}
+function showHome(){document.getElementById("workspace").classList.remove("visible");document.getElementById("reportPage").style.display="none";document.getElementById("home").style.display="block";setActive("homeNav")}
+(function(){const d=new Date();const bangkok=new Date(d.toLocaleString("en-US",{timeZone:"Asia/Bangkok"}));document.getElementById("summaryDate").value=[bangkok.getFullYear(),String(bangkok.getMonth()+1).padStart(2,"0"),String(bangkok.getDate()).padStart(2,"0")].join("-")})();
 </script></body></html>
