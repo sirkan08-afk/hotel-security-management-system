@@ -14,7 +14,7 @@
 .grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}.card{background:white;border:1px solid var(--line);border-radius:13px;padding:20px;box-shadow:0 2px 8px #10243a08;display:flex;flex-direction:column;min-height:220px}
 .icon{width:45px;height:45px;border-radius:11px;background:#eaf0f6;display:grid;place-items:center;font-size:23px;margin-bottom:15px}.card h2{font-size:17px;margin:0 0 7px}.card p{font-size:12px;color:var(--muted);line-height:1.65;margin:0 0 17px;flex:1}
 .open{display:inline-flex;align-items:center;justify-content:center;background:var(--blue);color:white;text-decoration:none;border:0;border-radius:8px;padding:11px 14px;font-size:13px;font-weight:bold;cursor:pointer}.open:hover{filter:brightness(1.12)}
-.status{font-size:10px;color:var(--green);margin-bottom:9px}.section{font-size:16px;margin:25px 0 12px}.note{background:#fff8e8;border:1px solid #f0dfb8;border-radius:9px;padding:13px 15px;font-size:12px;color:#795b1a;line-height:1.7;margin-top:18px}
+.status{font-size:10px;color:var(--green);margin-bottom:9px}.section{font-size:16px;margin:25px 0 12px}.report-toolbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;background:#fff;border:1px solid var(--line);padding:14px;border-radius:12px;margin:16px 0}.report-toolbar label{font-size:12px;color:var(--muted)}.report-toolbar input{padding:9px;border:1px solid var(--line);border-radius:7px;font:inherit}.report-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}.report-card{background:#fff;border:1px solid var(--line);border-radius:12px;padding:18px}.report-card h3{font-size:15px;margin:0 0 8px}.report-card p{font-size:12px;color:var(--muted);line-height:1.6;margin:0}.pending{display:inline-block;font-size:10px;color:#8a6418;background:#fff5d9;padding:5px 8px;border-radius:20px;margin-bottom:10px}.report-note{margin-top:16px;padding:14px;background:#f7f9fb;border:1px solid var(--line);border-radius:10px;font-size:12px;line-height:1.7;color:#536579}#reportPage{display:none}.note{background:#fff8e8;border:1px solid #f0dfb8;border-radius:9px;padding:13px 15px;font-size:12px;color:#795b1a;line-height:1.7;margin-top:18px}
 #workspace{display:none;flex:1;min-height:0;background:#e9eef3}#workspace.visible{display:flex;flex-direction:column}.workbar{background:#fff;border-bottom:1px solid var(--line);padding:10px 16px;display:flex;align-items:center;gap:10px}.workbar strong{font-size:13px}.workbar .spacer{flex:1}.workbar a{font-size:12px;color:var(--blue)}iframe{border:0;width:100%;height:100%;min-height:calc(100vh - 125px);background:#fff}
 @media(max-width:850px){.app{grid-template-columns:1fr}.side{padding:12px;gap:10px}.brand{padding:4px 8px 10px}nav{display:flex;overflow:auto}nav button{white-space:nowrap;padding:9px}.navlabel,.foot{display:none}.content{padding:16px}.top{padding:0 16px}.grid{grid-template-columns:1fr}iframe{min-height:calc(100vh - 150px)}}
 </style></head><body>
@@ -26,6 +26,7 @@
 <button id="contractorNav" onclick="openApp('contractor')">♙ Contractor Registration</button>
 <button id="workNav" onclick="openApp('work')">▤ Work Permit</button>
 <button id="patrolNav" onclick="openApp('patrol')">⌖ Security Patrol</button>
+<button id="reportNav" onclick="showReport()">▤ รายงานสรุปประจำวัน</button>
 </nav>
 <div class="foot">SECURITY DEPARTMENT<br>Central access portal · v1.1</div>
 </aside><main class="main">
@@ -46,6 +47,16 @@
 </div>
 
 </section>
+<section class="content" id="reportPage">
+<h1>Security Daily Summary</h1><div class="sub">รายงานสรุปภาพรวมการปฏิบัติงานประจำวันจากทั้ง 3 ระบบ</div>
+<div class="report-toolbar"><label for="summaryDate">วันที่รายงาน</label><input type="date" id="summaryDate"><button class="open" onclick="loadDailySummary()">ค้นหาข้อมูล</button><span style="flex:1"></span><button class="open" disabled title="เปิดใช้งานเมื่อเชื่อมต่อข้อมูลจริง">Export PDF</button><button class="open" disabled title="เปิดใช้งานเมื่อเชื่อมต่อข้อมูลจริง">Export Excel</button></div>
+<div class="report-grid">
+<article class="report-card"><span class="pending">รอเชื่อมต่อข้อมูล</span><h3>Contractor Registration</h3><p>จำนวนผู้รับเหมาและทีมงาน · รายการเข้า–ออก · ผู้ที่ยังไม่ลงเวลาออก</p></article>
+<article class="report-card"><span class="pending">รอเชื่อมต่อข้อมูล</span><h3>Work Permit</h3><p>จำนวนใบอนุญาต · รอพิจารณา · อนุมัติ · ไม่อนุมัติ · ปิดงาน</p></article>
+<article class="report-card"><span class="pending">รอเชื่อมต่อข้อมูล</span><h3>Security Patrol</h3><p>จำนวนจุดตรวจ · ตรวจแล้ว · ยังไม่ตรวจ · พบความผิดปกติ · ไม่สามารถเข้าตรวจ</p></article>
+</div>
+<div class="report-note" id="summaryStatus">สถานะ: ยังไม่ได้เชื่อมต่อ API สำหรับดึงข้อมูลจริง จึงยังไม่แสดงตัวเลขสรุปและยังไม่เปิดให้ส่งออกรายงาน เพื่อป้องกันข้อมูลคลาดเคลื่อน</div>
+</section>
 <section id="workspace">
 <div class="workbar"><strong id="appTitle">ระบบ</strong><span class="spacer"></span><a id="newTab" href="#" target="_blank" rel="noopener">เปิดแท็บใหม่ ↗</a><button class="open" onclick="showHome()">กลับหน้าหลัก</button></div>
 <iframe id="appFrame" title="Security application" allow="camera; microphone; geolocation; clipboard-read; clipboard-write" referrerpolicy="strict-origin-when-cross-origin"></iframe>
@@ -58,6 +69,9 @@ const apps={
  patrol:{title:"Security Patrol",url:"https://sirkan08-afk.github.io/Contactor-visitor/patrol/"}
 };
 function setActive(id){document.querySelectorAll("nav button").forEach(b=>b.classList.remove("active"));document.getElementById(id).classList.add("active")}
+function showReport(){document.getElementById("home").style.display="none";document.getElementById("workspace").classList.remove("visible");document.getElementById("reportPage").style.display="block";setActive("reportNav")}
+function loadDailySummary(){const d=document.getElementById("summaryDate").value;document.getElementById("summaryStatus").textContent="วันที่รายงาน: "+(d||"ไม่ได้เลือกวันที่")+" · ยังรอการเชื่อมต่อ API ที่ปลอดภัยจากฐานข้อมูลทั้ง 3 ระบบ จึงไม่แสดงตัวเลขที่ยังตรวจสอบไม่ได้";}
 function openApp(key){const app=apps[key];if(!app)return;document.getElementById("home").style.display="none";document.getElementById("workspace").classList.add("visible");document.getElementById("appTitle").textContent=app.title;document.getElementById("newTab").href=app.url;const frame=document.getElementById("appFrame");if(frame.src!==app.url)frame.src=app.url;setActive(key==="contractor"?"contractorNav":key==="work"?"workNav":"patrolNav")}
-function showHome(){document.getElementById("workspace").classList.remove("visible");document.getElementById("home").style.display="block";setActive("homeNav")}
+function showHome(){document.getElementById("workspace").classList.remove("visible");document.getElementById("reportPage").style.display="none";document.getElementById("home").style.display="block";setActive("homeNav")}
+(function(){const d=new Date();const bangkok=new Date(d.toLocaleString("en-US",{timeZone:"Asia/Bangkok"}));document.getElementById("summaryDate").value=[bangkok.getFullYear(),String(bangkok.getMonth()+1).padStart(2,"0"),String(bangkok.getDate()).padStart(2,"0")].join("-")})();
 </script></body></html>
