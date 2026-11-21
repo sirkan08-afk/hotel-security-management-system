@@ -157,5 +157,5 @@ function exportSummaryCsv(){
 function openApp(key){const app=apps[key];if(!app)return;document.getElementById("home").style.display="none";document.getElementById("workspace").classList.add("visible");document.getElementById("appTitle").textContent=app.title;document.getElementById("newTab").href=app.url;const frame=document.getElementById("appFrame");if(frame.src!==app.url)frame.src=app.url;setActive(key==="contractor"?"contractorNav":key==="work"?"workNav":"patrolNav")}
 function showHome(){document.getElementById("workspace").classList.remove("visible");document.getElementById("home").style.display="block";setActive("homeNav")}
 (function(){const d=new Date();const bangkok=new Date(d.toLocaleString("en-US",{timeZone:"Asia/Bangkok"}));document.getElementById("summaryDate").value=[bangkok.getFullYear(),String(bangkok.getMonth()+1).padStart(2,"0"),String(bangkok.getDate()).padStart(2,"0")].join("-")})();
-if("serviceWorker" in navigator){window.addEventListener("load",()=>navigator.serviceWorker.register("./service-worker.js").catch(err=>console.warn("PWA service worker:",err)));}
+if("serviceWorker" in navigator){window.addEventListener("load",()=>navigator.serviceWorker.register("./service-worker.js",{updateViaCache:"none"}).then(reg=>reg.update()).catch(err=>console.warn("PWA service worker:",err)));}
 </script></body></html>
