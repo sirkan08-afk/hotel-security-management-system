@@ -34,6 +34,23 @@
 </aside><main class="main">
 <header class="top"><b>Hotel Security Management System</b><small>SECURITY DEPARTMENT</small></header>
 <section class="content" id="home">
+<section class="overview-report" id="reportPage">
+<h1>Security Daily Summary</h1><div class="sub">รายงานสรุปภาพรวมการปฏิบัติงานประจำวันจากทั้ง 3 ระบบ</div>
+<div class="report-toolbar"><label for="summaryDate">วันที่รายงาน</label><input type="date" id="summaryDate"><button class="open" onclick="loadDailySummary()">อัปเดตข้อมูลล่าสุด</button><button class="open" id="summaryPdfBtn" onclick="window.print()" disabled>Export PDF</button><button class="open" id="summaryCsvBtn" onclick="exportSummaryCsv()" disabled>Export Excel (CSV)</button></div>
+<div class="report-toolbar" id="summaryLogin"><label for="summaryUser">User ID</label><input id="summaryUser" placeholder="เช่น SEC001 หรือ ADMIN001" autocomplete="username"><label for="summaryPassword">Password</label><input id="summaryPassword" type="password" placeholder="รหัสผ่าน" autocomplete="current-password"><button class="open" onclick="summaryLoginNow()">เข้าสู่ระบบเจ้าหน้าที่</button><span id="summaryAuthStatus" class="sub" style="margin:0"></span></div>
+<div class="report-toolbar" id="summarySession" style="display:none"><span id="summaryStaffLabel"></span><button class="open" onclick="summaryLogout()">ออกจากระบบ</button></div>
+<div class="report-grid">
+<article class="report-card"><span class="pending" id="contractorBadge">รอข้อมูล</span><h3>Contractor Registration</h3><p>รายการเข้า: <b id="contractorEntries">—</b><br>จำนวนทีมงาน: <b id="contractorTeam">—</b><br>ลงเวลาออกแล้ว: <b id="contractorOut">—</b><br>ยังอยู่ในพื้นที่: <b id="contractorInside">—</b></p></article>
+<article class="report-card"><span class="pending" id="permitBadge">รอข้อมูล</span><h3>Work Permit</h3><p>ใบอนุญาตทั้งหมด: <b id="permitTotal">—</b><br>รายละเอียดสถานะ:<br><span id="permitStatuses">—</span></p></article>
+<article class="report-card"><span class="pending" id="patrolBadge">รอข้อมูล</span><h3>Security Patrol</h3><p>จุดตรวจที่เปิดใช้งาน: <b id="patrolPoints">—</b><br>บันทึกผลตรวจ: <b id="patrolChecks">—</b><br>ปกติ: <b id="patrolNormal">—</b> · ผิดปกติ: <b id="patrolAbnormal">—</b><br>เข้าตรวจไม่ได้: <b id="patrolInaccessible">—</b><br>รอบที่มีบันทึก: <b id="patrolRounds">—</b></p></article>
+</div>
+<section class="detail-section"><h2>รายละเอียดผู้รับเหมา / Contractor Details</h2><div class="table-wrap"><table class="detail-table"><thead><tr><th>ลำดับ</th><th>ชื่อ-นามสกุล</th><th>บริษัท</th><th>แผนก</th><th>สถานที่ปฏิบัติงาน</th><th>ทะเบียนรถ</th><th>จำนวนทีม</th><th>เวลาเข้า</th><th>เวลาออก</th></tr></thead><tbody id="contractorDetailRows"><tr><td colspan="9">รอข้อมูล</td></tr></tbody></table></div></section>
+<section class="detail-section"><h2>รายการ Work Permit ประจำวัน</h2><div class="table-wrap"><table class="detail-table"><thead><tr><th>ลำดับ</th><th>หมายเลข WP</th><th>ชื่องาน</th><th>สถานะ</th></tr></thead><tbody id="permitDetailRows"><tr><td colspan="4">รอข้อมูล</td></tr></tbody></table></div></section>
+<section class="detail-section"><h2>ผลการตรวจ Security Patrol แยกตามรอบ</h2><div id="patrolRoundDetails">รอข้อมูล</div></section>
+<div class="report-note" id="summaryStatus">กรุณาเข้าสู่ระบบด้วยบัญชีเจ้าหน้าที่ Work Permit (SEC001 / ADMIN001) เพื่อดูข้อมูลจริง ทั้งนี้ต้อง Deploy Edge Function และตั้งค่า Secrets ใน Supabase ก่อน</div>
+</section>
+</section>
+
 <div class="hero"><h1>Security Operations Portal</h1><p>ศูนย์รวมระบบรักษาความปลอดภัยของโรงแรม เปิดใช้งานระบบต่าง ๆ ได้จากหน้าเดียว</p></div>
 <div class="sub">ระบบปฏิบัติงานหลัก · เปิดภายในหน้าเว็บไซต์เดียว</div>
 <div class="grid">
@@ -48,22 +65,7 @@
 <article class="card"><div class="icon">⌖</div><div class="status">● พร้อมใช้งาน</div><h2>Security Patrol</h2><p>ระบบตรวจจุดผ่าน QR Code บันทึกผลการตรวจและผู้ปฏิบัติงาน พร้อมรายงาน</p><button class="open" onclick="openApp('patrol')">เปิดระบบ →</button></article>
 </div>
 
-<section class="overview-report" id="reportPage">
-<h1>Security Daily Summary</h1><div class="sub">รายงานสรุปภาพรวมการปฏิบัติงานประจำวันจากทั้ง 3 ระบบ</div>
-<div class="report-toolbar"><label for="summaryDate">วันที่รายงาน</label><input type="date" id="summaryDate"><button class="open" onclick="loadDailySummary()">ค้นหาข้อมูล</button><button class="open" id="summaryPdfBtn" onclick="window.print()" disabled>Export PDF</button><button class="open" id="summaryCsvBtn" onclick="exportSummaryCsv()" disabled>Export Excel (CSV)</button></div>
-<div class="report-toolbar" id="summaryLogin"><label for="summaryUser">User ID</label><input id="summaryUser" placeholder="เช่น SEC001 หรือ ADMIN001" autocomplete="username"><label for="summaryPassword">Password</label><input id="summaryPassword" type="password" placeholder="รหัสผ่าน" autocomplete="current-password"><button class="open" onclick="summaryLoginNow()">เข้าสู่ระบบเจ้าหน้าที่</button><span id="summaryAuthStatus" class="sub" style="margin:0"></span></div>
-<div class="report-toolbar" id="summarySession" style="display:none"><span id="summaryStaffLabel"></span><button class="open" onclick="summaryLogout()">ออกจากระบบ</button></div>
-<div class="report-grid">
-<article class="report-card"><span class="pending" id="contractorBadge">รอข้อมูล</span><h3>Contractor Registration</h3><p>รายการเข้า: <b id="contractorEntries">—</b><br>จำนวนทีมงาน: <b id="contractorTeam">—</b><br>ลงเวลาออกแล้ว: <b id="contractorOut">—</b><br>ยังอยู่ในพื้นที่: <b id="contractorInside">—</b></p></article>
-<article class="report-card"><span class="pending" id="permitBadge">รอข้อมูล</span><h3>Work Permit</h3><p>ใบอนุญาตทั้งหมด: <b id="permitTotal">—</b><br>รายละเอียดสถานะ:<br><span id="permitStatuses">—</span></p></article>
-<article class="report-card"><span class="pending" id="patrolBadge">รอข้อมูล</span><h3>Security Patrol</h3><p>จุดตรวจที่เปิดใช้งาน: <b id="patrolPoints">—</b><br>บันทึกผลตรวจ: <b id="patrolChecks">—</b><br>ปกติ: <b id="patrolNormal">—</b> · ผิดปกติ: <b id="patrolAbnormal">—</b><br>เข้าตรวจไม่ได้: <b id="patrolInaccessible">—</b><br>รอบที่มีบันทึก: <b id="patrolRounds">—</b></p></article>
-</div>
-<section class="detail-section"><h2>รายละเอียดผู้รับเหมา / Contractor Details</h2><div class="table-wrap"><table class="detail-table"><thead><tr><th>ลำดับ</th><th>ชื่อ-นามสกุล</th><th>บริษัท</th><th>แผนก</th><th>สถานที่ปฏิบัติงาน</th><th>ทะเบียนรถ</th><th>จำนวนทีม</th><th>เวลาเข้า</th><th>เวลาออก</th></tr></thead><tbody id="contractorDetailRows"><tr><td colspan="9">รอข้อมูล</td></tr></tbody></table></div></section>
-<section class="detail-section"><h2>รายการ Work Permit ประจำวัน</h2><div class="table-wrap"><table class="detail-table"><thead><tr><th>ลำดับ</th><th>หมายเลข WP</th><th>ชื่องาน</th><th>สถานะ</th></tr></thead><tbody id="permitDetailRows"><tr><td colspan="4">รอข้อมูล</td></tr></tbody></table></div></section>
-<section class="detail-section"><h2>ผลการตรวจ Security Patrol แยกตามรอบ</h2><div id="patrolRoundDetails">รอข้อมูล</div></section>
-<div class="report-note" id="summaryStatus">กรุณาเข้าสู่ระบบด้วยบัญชีเจ้าหน้าที่ Work Permit (SEC001 / ADMIN001) เพื่อดูข้อมูลจริง ทั้งนี้ต้อง Deploy Edge Function และตั้งค่า Secrets ใน Supabase ก่อน</div>
-</section>
-</section>
+
 
 <section id="workspace">
 <div class="workbar"><strong id="appTitle">ระบบ</strong><span class="spacer"></span><a id="newTab" href="#" target="_blank" rel="noopener">เปิดแท็บใหม่ ↗</a><button class="open" onclick="showHome()">กลับหน้าหลัก</button></div>
@@ -81,6 +83,8 @@ const SUMMARY_SUPABASE_URL="https://nldoneixnuapuzpeeznl.supabase.co";
 const SUMMARY_SUPABASE_KEY="sb_publishable_igE41YhbVSgCQijy3nTCPg_3C-PyGiI";
 const summaryDb=window.supabase?.createClient(SUMMARY_SUPABASE_URL,SUMMARY_SUPABASE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:false}});
 let summaryPayload=null;
+let summaryRefreshTimer=null;
+function startSummaryAutoRefresh(){if(summaryRefreshTimer)clearInterval(summaryRefreshTimer);summaryRefreshTimer=setInterval(()=>{if(summaryDb)summaryDb.auth.getSession().then(({data})=>{if(data.session)loadDailySummary()})},60000)}
 async function summaryLoginNow(){
  const user=document.getElementById("summaryUser").value.trim().replace(/@patrol\.com$/i,"");
  const password=document.getElementById("summaryPassword").value;
@@ -95,9 +99,10 @@ async function summaryLoginNow(){
  document.getElementById("summaryStaffLabel").textContent="เข้าสู่ระบบแล้ว: "+user.toUpperCase();
  status.textContent="เข้าสู่ระบบสำเร็จ";
  await loadDailySummary();
+ startSummaryAutoRefresh();
 }
 async function summaryLogout(){
- await summaryDb?.auth.signOut();summaryPayload=null;
+ if(summaryRefreshTimer){clearInterval(summaryRefreshTimer);summaryRefreshTimer=null;}await summaryDb?.auth.signOut();summaryPayload=null;
  document.getElementById("summarySession").style.display="none";
  document.getElementById("summaryLogin").style.display="flex";
  document.getElementById("summaryAuthStatus").textContent="ออกจากระบบแล้ว";
