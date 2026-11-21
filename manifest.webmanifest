@@ -1,0 +1,20 @@
+{
+  "name": "Hotel Security Portal",
+  "short_name": "Security Portal",
+  "description": "ศูนย์กลางระบบงานรักษาความปลอดภัยและรายงานประจำวัน",
+  "lang": "th",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#f2f5f8",
+  "theme_color": "#10243a",
+  "icons": [
+    {
+      "src": "./icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
