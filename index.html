@@ -7,35 +7,57 @@
 *{box-sizing:border-box}body{margin:0;font-family:Arial,"Noto Sans Thai",sans-serif;background:var(--bg);color:#172b3d}
 .app{min-height:100vh;display:grid;grid-template-columns:245px 1fr}.side{background:var(--navy);color:white;padding:22px 15px;display:flex;flex-direction:column;gap:18px}
 .brand{padding:6px 10px 18px;border-bottom:1px solid #ffffff25}.brand b{display:block;letter-spacing:.5px}.brand small{color:#b9c9d8}
-.navlabel{font-size:10px;color:#91a8bc;letter-spacing:1px}nav{display:grid;gap:6px}nav a{color:#dce7f0;text-decoration:none;padding:11px;border-radius:8px;font-size:13px}nav a.active,nav a:hover{background:#ffffff1b;color:#fff}
-.foot{margin-top:auto;color:#91a8bc;font-size:11px;line-height:1.6}.main{min-width:0}.top{height:64px;background:white;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 26px}.top small{color:var(--muted)}
-.content{padding:28px;max-width:1450px;margin:auto}h1{font-size:25px;margin:0 0 6px}.sub{font-size:13px;color:var(--muted);margin-bottom:22px}
+.navlabel{font-size:10px;color:#91a8bc;letter-spacing:1px}nav{display:grid;gap:6px}nav button{border:0;background:transparent;text-align:left;color:#dce7f0;padding:11px;border-radius:8px;font-size:13px;cursor:pointer}nav button.active,nav button:hover{background:#ffffff1b;color:#fff}
+.foot{margin-top:auto;color:#91a8bc;font-size:11px;line-height:1.6}.main{min-width:0;display:flex;flex-direction:column}.top{height:64px;background:white;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 26px;flex-shrink:0}.top small{color:var(--muted)}
+.content{padding:28px;max-width:1450px;margin:auto;width:100%}h1{font-size:25px;margin:0 0 6px}.sub{font-size:13px;color:var(--muted);margin-bottom:22px}
 .hero{background:linear-gradient(120deg,#10243a,#1d4668);color:white;padding:25px;border-radius:15px;margin-bottom:20px}.hero h1{font-size:24px}.hero p{color:#d5e1eb;margin:8px 0 0;font-size:13px}
 .grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}.card{background:white;border:1px solid var(--line);border-radius:13px;padding:20px;box-shadow:0 2px 8px #10243a08;display:flex;flex-direction:column;min-height:220px}
 .icon{width:45px;height:45px;border-radius:11px;background:#eaf0f6;display:grid;place-items:center;font-size:23px;margin-bottom:15px}.card h2{font-size:17px;margin:0 0 7px}.card p{font-size:12px;color:var(--muted);line-height:1.65;margin:0 0 17px;flex:1}
-.open{display:inline-flex;align-items:center;justify-content:center;background:var(--blue);color:white;text-decoration:none;border-radius:8px;padding:11px 14px;font-size:13px;font-weight:bold}.open:hover{filter:brightness(1.12)}
+.open{display:inline-flex;align-items:center;justify-content:center;background:var(--blue);color:white;text-decoration:none;border:0;border-radius:8px;padding:11px 14px;font-size:13px;font-weight:bold;cursor:pointer}.open:hover{filter:brightness(1.12)}
 .status{font-size:10px;color:var(--green);margin-bottom:9px}.section{font-size:16px;margin:25px 0 12px}.note{background:#fff8e8;border:1px solid #f0dfb8;border-radius:9px;padding:13px 15px;font-size:12px;color:#795b1a;line-height:1.7;margin-top:18px}
-@media(max-width:850px){.app{grid-template-columns:1fr}.side{padding:12px;gap:10px}.brand{padding:4px 8px 10px}nav{display:flex;overflow:auto}nav a{white-space:nowrap;padding:9px}.navlabel,.foot{display:none}.content{padding:16px}.top{padding:0 16px}.grid{grid-template-columns:1fr}}
+#workspace{display:none;flex:1;min-height:0;background:#e9eef3}#workspace.visible{display:flex;flex-direction:column}.workbar{background:#fff;border-bottom:1px solid var(--line);padding:10px 16px;display:flex;align-items:center;gap:10px}.workbar strong{font-size:13px}.workbar .spacer{flex:1}.workbar a{font-size:12px;color:var(--blue)}iframe{border:0;width:100%;height:100%;min-height:calc(100vh - 125px);background:#fff}
+@media(max-width:850px){.app{grid-template-columns:1fr}.side{padding:12px;gap:10px}.brand{padding:4px 8px 10px}nav{display:flex;overflow:auto}nav button{white-space:nowrap;padding:9px}.navlabel,.foot{display:none}.content{padding:16px}.top{padding:0 16px}.grid{grid-template-columns:1fr}iframe{min-height:calc(100vh - 150px)}}
 </style></head><body>
 <div class="app"><aside class="side">
 <div class="brand"><b>HOTEL SECURITY</b><small>MANAGEMENT SYSTEM</small></div>
 <div class="navlabel">MAIN MENU</div>
-<nav><a class="active" href="#home">▦ ภาพรวมระบบ</a><a href="https://sirkan08-afk.github.io/contractor-app-/">♙ Contractor Registration</a><a href="https://sirkan08-afk.github.io/Contactor-visitor/work-permit/">▤ Work Permit</a><a href="https://sirkan08-afk.github.io/Contactor-visitor/patrol/">⌖ Security Patrol</a></nav>
-<div class="foot">SECURITY DEPARTMENT<br>Central access portal · v1.0</div>
-</aside><main class="main"><header class="top"><b>Hotel Security Management System</b><small>SECURITY DEPARTMENT</small></header>
+<nav>
+<button id="homeNav" class="active" onclick="showHome()">▦ ภาพรวมระบบ</button>
+<button id="contractorNav" onclick="openApp('contractor')">♙ Contractor Registration</button>
+<button id="workNav" onclick="openApp('work')">▤ Work Permit</button>
+<button id="patrolNav" onclick="openApp('patrol')">⌖ Security Patrol</button>
+</nav>
+<div class="foot">SECURITY DEPARTMENT<br>Central access portal · v1.1</div>
+</aside><main class="main">
+<header class="top"><b>Hotel Security Management System</b><small>SECURITY DEPARTMENT</small></header>
 <section class="content" id="home">
-<div class="hero"><h1>Security Operations Portal</h1><p>ศูนย์รวมทางเข้าใช้งานระบบรักษาความปลอดภัยของโรงแรม เลือกเปิดระบบที่ต้องการจากหน้าเดียว</p></div>
-<div class="sub">ระบบปฏิบัติงานหลัก · เชื่อมไปยังเว็บแอปเดิมโดยตรง</div>
+<div class="hero"><h1>Security Operations Portal</h1><p>ศูนย์รวมระบบรักษาความปลอดภัยของโรงแรม เปิดใช้งานระบบต่าง ๆ ได้จากหน้าเดียว</p></div>
+<div class="sub">ระบบปฏิบัติงานหลัก · เปิดภายในหน้าเว็บไซต์เดียว</div>
 <div class="grid">
-<article class="card"><div class="icon">♙</div><div class="status">● EXISTING APPLICATION</div><h2>Contractor Registration</h2><p>ลงทะเบียนผู้รับเหมาและผู้มาติดต่อ บันทึกข้อมูลเข้า–ออก พร้อมค้นหาและออกรายงาน</p><a class="open" href="https://sirkan08-afk.github.io/contractor-app-/">เปิด Contractor Registration →</a></article>
-<article class="card"><div class="icon">▤</div><div class="status">● EXISTING APPLICATION</div><h2>Work Permit</h2><p>ยื่นคำขอ Work Permit ติดตามสถานะ ตรวจสอบรายการ และดำเนินการอนุมัติโดยเจ้าหน้าที่ Security</p><a class="open" href="https://sirkan08-afk.github.io/Contactor-visitor/work-permit/">เปิด Work Permit →</a></article>
-<article class="card"><div class="icon">⌖</div><div class="status">● EXISTING APPLICATION</div><h2>Security Patrol</h2><p>ตรวจจุดผ่าน QR Code บันทึกผลการตรวจและผู้ปฏิบัติงาน พร้อมรายงานการตรวจพื้นที่</p><a class="open" href="https://sirkan08-afk.github.io/Contactor-visitor/patrol/">เปิด Security Patrol →</a></article>
+<article class="card"><div class="icon">♙</div><div class="status">● EXISTING APPLICATION</div><h2>Contractor Registration</h2><p>ลงทะเบียนผู้รับเหมาและผู้มาติดต่อ บันทึกข้อมูลเข้า–ออก ค้นหาและออกรายงาน</p><button class="open" onclick="openApp('contractor')">เปิดระบบ →</button></article>
+<article class="card"><div class="icon">▤</div><div class="status">● EXISTING APPLICATION</div><h2>Work Permit</h2><p>ยื่นคำขอ Work Permit ติดตามสถานะ ตรวจสอบรายการและดำเนินการอนุมัติ</p><button class="open" onclick="openApp('work')">เปิดระบบ →</button></article>
+<article class="card"><div class="icon">⌖</div><div class="status">● EXISTING APPLICATION</div><h2>Security Patrol</h2><p>ตรวจจุดผ่าน QR Code บันทึกผลการตรวจและผู้ปฏิบัติงาน พร้อมรายงานการตรวจพื้นที่</p><button class="open" onclick="openApp('patrol')">เปิดระบบ →</button></article>
 </div>
-<h2 class="section">ระบบที่เตรียมไว้สำหรับระยะถัดไป</h2>
+<h2 class="section">ระบบสำหรับระยะถัดไป</h2>
 <div class="grid">
 <article class="card"><div class="icon">◉</div><div class="status" style="color:#946200">○ WAITING FOR CONNECTION</div><h2>CCTV Operations Center</h2><p>เตรียมพื้นที่สำหรับเชื่อมต่อภาพกล้องวงจรปิดและสถานะกล้อง เมื่อระบบ CCTV พร้อมใช้งาน</p></article>
 <article class="card"><div class="icon">▣</div><div class="status" style="color:#946200">○ PLANNED MODULE</div><h2>Security Logbook & Incident</h2><p>พื้นที่สำหรับบันทึกเหตุการณ์ สมุดรายงานประจำวัน และติดตามเหตุผิดปกติ</p></article>
 <article class="card"><div class="icon">▥</div><div class="status" style="color:#946200">○ PLANNED MODULE</div><h2>Daily Report Center</h2><p>เตรียมรวมรายงานประจำวันจากทุกระบบ พร้อมรูปแบบ PDF สำหรับ Security Operations Center</p></article>
 </div>
-<div class="note"><b>หมายเหตุการเชื่อมต่อ:</b> หน้า Portal นี้เป็นศูนย์รวมลิงก์ไปยังแอปเดิม แต่ละแอปยังคงใช้ระบบ Login และฐานข้อมูล Supabase ของตนเองตามเดิม ขั้นตอนนี้ยังไม่ได้รวมฐานข้อมูลหรือดึงสถิติข้ามระบบ และไม่เปลี่ยนแปลงข้อมูลเดิม</div>
-</section></main></div></body></html>
+<div class="note"><b>การเชื่อมต่อ:</b> แอปเดิมยังคงใช้ระบบ Login และฐานข้อมูล Supabase ของแต่ละระบบตามเดิม หน้า Portal นี้เป็นศูนย์กลางเปิดแอปภายในหน้าจอเดียว ยังไม่ได้รวมฐานข้อมูลหรือดึงสถิติข้ามระบบ</div>
+</section>
+<section id="workspace">
+<div class="workbar"><strong id="appTitle">ระบบ</strong><span class="spacer"></span><a id="newTab" href="#" target="_blank" rel="noopener">เปิดแท็บใหม่ ↗</a><button class="open" onclick="showHome()">กลับหน้าหลัก</button></div>
+<iframe id="appFrame" title="Security application" allow="camera; microphone; geolocation; clipboard-read; clipboard-write" referrerpolicy="strict-origin-when-cross-origin"></iframe>
+</section>
+</main></div>
+<script>
+const apps={
+ contractor:{title:"Contractor Registration",url:"https://sirkan08-afk.github.io/contractor-app-/"},
+ work:{title:"Work Permit",url:"https://sirkan08-afk.github.io/Contactor-visitor/work-permit/"},
+ patrol:{title:"Security Patrol",url:"https://sirkan08-afk.github.io/Contactor-visitor/patrol/"}
+};
+function setActive(id){document.querySelectorAll("nav button").forEach(b=>b.classList.remove("active"));document.getElementById(id).classList.add("active")}
+function openApp(key){const app=apps[key];if(!app)return;document.getElementById("home").style.display="none";document.getElementById("workspace").classList.add("visible");document.getElementById("appTitle").textContent=app.title;document.getElementById("newTab").href=app.url;const frame=document.getElementById("appFrame");if(frame.src!==app.url)frame.src=app.url;setActive(key==="contractor"?"contractorNav":key==="work"?"workNav":"patrolNav")}
+function showHome(){document.getElementById("workspace").classList.remove("visible");document.getElementById("home").style.display="block";setActive("homeNav")}
+</script></body></html>
