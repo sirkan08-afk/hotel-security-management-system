@@ -128,7 +128,7 @@ async function loadDailySummary(silent=false){
   document.getElementById("permitTotal").textContent=result.workPermit.total;
   const statusLabels={draft:"ฉบับร่าง",submitted:"ส่งคำขอแล้ว",under_review:"กำลังตรวจสอบ",approved:"อนุมัติแล้ว",rejected:"ไม่อนุมัติ",revision_requested:"รอแก้ไขข้อมูล",closed:"ปิดงานแล้ว"};
   document.getElementById("permitStatuses").innerHTML=Object.entries(result.workPermit.statuses).map(([k,v])=>'<span class="'+escStatusClass(k)+'">'+(statusLabels[k]||k)+": "+v+'</span>').join("")||"ไม่มีรายการ";
-  const escStatusClass=k=>String(k||"").replace(/[^a-z0-9_-]/gi,"");
+  function escStatusClass(k){return String(k||"").replace(/[^a-z0-9_-]/gi,"");}
   const escHtml=v=>String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
   const timeText=v=>v?new Date(v).toLocaleTimeString("th-TH",{timeZone:"Asia/Bangkok",hour:"2-digit",minute:"2-digit"}):"-";
   const contractorRows=result.contractor.entriesList||[];
