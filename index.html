@@ -43,6 +43,13 @@ html,body{width:100%;height:100%;min-height:100%;margin:0}body{overflow:hidden}.
 .collapse-content[hidden]{display:none!important}
 @media print{.collapse-content[hidden],.collapse-content{display:block!important}.collapse-meta{display:none!important}}
 </style>
+<style>
+@page{size:A4 portrait;margin:12mm}
+@media print{
+ .system-section.print-page-break{break-before:page!important;page-break-before:always!important}
+ .system-section{break-inside:auto!important;page-break-inside:auto!important}
+}
+</style>
 </head><body>
 <div class="app"><aside class="side">
 <div class="brand"><b>HOTEL SECURITY</b><small>MANAGEMENT SYSTEM</small></div>
@@ -182,4 +189,32 @@ function showHome(){document.getElementById("workspace").classList.remove("visib
 function updateSummaryPrintDate(){const value=document.getElementById("summaryDate").value;const el=document.getElementById("summaryDatePrint");if(el&&value){const [y,m,d]=value.split("-");el.textContent=d+"/"+m+"/"+y.slice(-2)}}
 (function(){const d=new Date();const bangkok=new Date(d.toLocaleString("en-US",{timeZone:"Asia/Bangkok"}));document.getElementById("summaryDate").value=[bangkok.getFullYear(),String(bangkok.getMonth()+1).padStart(2,"0"),String(bangkok.getDate()).padStart(2,"0")].join("-");updateSummaryPrintDate();document.getElementById("summaryDate").addEventListener("change",updateSummaryPrintDate)})();
 if("serviceWorker" in navigator){window.addEventListener("load",()=>navigator.serviceWorker.register("./service-worker.js",{updateViaCache:"none"}).then(reg=>reg.update()).catch(err=>console.warn("PWA service worker:",err)));}
+
+function prepareSummaryPrint(){
+ const report=document.getElementById("reportPage");
+ const sections=[...report.querySelectorAll(".system-section")];
+ const panels=[...report.querySelectorAll(".collapse-content")];
+ const prior=panels.map(p=>p.hidden);
+ panels.forEach(p=>{p.hidden=false});
+ sections.forEach(s=>s.classList.remove("print-page-break"));
+ const pageHeight=1031;
+ let used=report.querySelector(".summary-heading")?.offsetHeight||0;
+ report.querySelectorAll(".report-toolbar").forEach(t=>{if(getComputedStyle(t).display!=="none")used+=t.offsetHeight});
+ sections.forEach((section,index)=>{
+   if(index>0){
+     const position=used%pageHeight;
+     const remaining=position===0?pageHeight:pageHeight-position;
+     if(remaining<=pageHeight*0.5){
+       section.classList.add("print-page-break");
+       used+=remaining;
+     }
+   }
+   used+=section.offsetHeight;
+ });
+ window.addEventListener("afterprint",()=>{
+   sections.forEach(s=>s.classList.remove("print-page-break"));
+   panels.forEach((p,i)=>{p.hidden=prior[i]});
+ },{once:true});
+}
+window.addEventListener("beforeprint",prepareSummaryPrint);
 </script></body></html>
