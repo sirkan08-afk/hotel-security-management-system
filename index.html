@@ -32,6 +32,7 @@ html,body{width:100%;height:100%;min-height:100%;margin:0}body{overflow:hidden}.
 #workspace{display:none;flex:1 1 0;min-width:0;min-height:0;height:0;background:#e9eef3;overflow:hidden}#workspace.visible{display:flex;flex-direction:column}.workbar{background:#fff;border-bottom:1px solid var(--line);padding:10px 16px;display:flex;align-items:center;gap:10px}.workbar strong{font-size:13px}.workbar .spacer{flex:1}.workbar a{font-size:12px;color:var(--blue)}iframe{display:block;flex:1 1 0;border:0;width:100%;max-width:100%;height:0;min-height:0;min-width:0;background:#fff;touch-action:pan-x pan-y}
 @media(max-width:850px){.app{grid-template-columns:minmax(0,1fr);grid-template-rows:auto minmax(0,1fr)}.side{min-width:0;padding:8px 10px;gap:7px}.brand{padding:2px 6px 7px}.brand b{font-size:14px}.brand small{font-size:11px}nav{display:flex;gap:5px;overflow-x:auto;overflow-y:hidden;max-width:100%;padding-bottom:3px;scrollbar-width:thin;-webkit-overflow-scrolling:touch}nav button{flex:0 0 auto;white-space:nowrap;padding:8px 10px;font-size:12px}.navlabel,.foot{display:none}.main{min-height:0}.top{height:42px;min-height:42px;padding:0 12px;font-size:12px}.top small{font-size:10px}.content{padding:12px;max-width:none;margin:0}.grid,.report-grid{grid-template-columns:minmax(0,1fr)}#workspace{min-width:0;min-height:0;height:auto;flex:1 1 0}.workbar{flex:0 0 auto;padding:7px 9px;gap:7px}.workbar strong{font-size:12px}.workbar a{font-size:11px}.workbar .open{padding:8px 10px;font-size:11px}iframe{width:100%;min-width:0;min-height:0;height:0;flex:1 1 0}}
 </style><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.3/html2pdf.bundle.min.js"></script>
 <style>.summary-brand{display:flex;align-items:center;gap:12px;min-width:0}.summary-brand img{width:58px;height:62px;object-fit:contain;display:block}.summary-brand h1{margin:0}@media print{.summary-brand{display:flex!important;align-items:center!important;gap:10px!important}.summary-brand img{width:52px!important;height:56px!important;object-fit:contain!important;print-color-adjust:exact;-webkit-print-color-adjust:exact}.summary-brand h1{font-size:18px!important;white-space:nowrap!important}}@media(max-width:520px){.summary-brand img{width:44px;height:48px}.summary-brand h1{font-size:19px}}.summary-heading{display:flex;align-items:center;justify-content:space-between;gap:12px}.summary-heading h1{margin:0}.summary-date-area{display:flex;align-items:center;justify-content:flex-end;gap:8px}.patrol-signoff{display:none}.signoff-line{width:220px;max-width:55%;border-bottom:1px solid #64748b;margin:0 0 8px auto}.signoff-label,.signoff-role,.signoff-name{text-align:right;font-size:12px;color:#334155}.signoff-name{font-weight:700;font-size:14px;color:#172b3d}.signoff-role{color:#64748b}@media print{.summary-heading{display:flex!important;align-items:center!important;justify-content:space-between!important;gap:12px!important;margin-bottom:12px!important}.summary-heading h1{font-size:18px!important;white-space:nowrap!important}.summary-date-area{margin-left:auto!important;justify-content:flex-end!important}.summary-date-label,#summaryDate{display:none!important}.summary-date-print{display:inline!important;font-size:12px!important;font-weight:600!important;color:#172b3d!important;white-space:nowrap!important}.report-toolbar{display:none!important}.report-note{display:none!important}.patrol-signoff{display:block!important;margin-top:8px!important;padding-top:6px!important;break-inside:auto!important;page-break-inside:auto!important}.signoff-line{margin-left:auto!important;margin-bottom:4px!important}}.summary-date-print{display:none}@media print{#summaryDate{display:none!important}.summary-date-print{display:inline!important;font-size:12px;color:#172b3d;font-weight:600}.report-toolbar{gap:8px!important}.system-section>h2{break-after:avoid!important;page-break-after:avoid!important}.system-section>.report-card{break-before:avoid!important;page-break-before:avoid!important;break-inside:avoid!important;page-break-inside:avoid!important}.system-section>.subheading{break-after:avoid!important;page-break-after:avoid!important}}@media print{html,body{width:auto!important;height:auto!important;min-height:0!important;overflow:visible!important;background:#fff!important}body{overflow:visible!important}.app,.main,.content{display:block!important;width:auto!important;height:auto!important;min-height:0!important;max-height:none!important;overflow:visible!important}.side,.top,#summaryLogin,#summarySession,.report-toolbar button,#home>.hero,#home>.sub,#home>.grid,#home>.section{display:none!important}.content{max-width:none!important;margin:0!important;padding:0!important}.overview-report{display:block!important;width:100%!important;padding:0!important;margin:0!important}.detail-section,.system-section{display:block!important;width:100%!important;height:auto!important;max-height:none!important;overflow:visible!important;break-inside:auto!important;page-break-inside:auto!important}.report-card,.round-block{break-inside:avoid;page-break-inside:avoid}.detail-table tr{break-inside:avoid;page-break-inside:avoid}table{width:100%!important;border-collapse:collapse!important}thead{display:table-header-group}tfoot{display:table-footer-group}body{-webkit-print-color-adjust:exact;print-color-adjust:exact}}</style>
 
 <style>
@@ -50,6 +51,22 @@ html,body{width:100%;height:100%;min-height:100%;margin:0}body{overflow:hidden}.
  .system-section{break-inside:auto!important;page-break-inside:auto!important}
 }
 </style>
+
+<style>
+body.pdf-export{background:#fff!important;overflow:visible!important}
+body.pdf-export .app,body.pdf-export .main,body.pdf-export .content{display:block!important;width:auto!important;height:auto!important;min-height:0!important;max-height:none!important;overflow:visible!important}
+body.pdf-export .side,body.pdf-export .top,body.pdf-export #summaryLogin,body.pdf-export #summarySession,body.pdf-export .report-toolbar,body.pdf-export .report-note{display:none!important}
+body.pdf-export .content,body.pdf-export .overview-report{max-width:none!important;width:100%!important;margin:0!important;padding:0!important}
+body.pdf-export .summary-heading{display:flex!important;align-items:center!important;justify-content:space-between!important;margin-bottom:12px!important}
+body.pdf-export .summary-date-label,body.pdf-export #summaryDate{display:none!important}
+body.pdf-export .summary-date-print{display:inline!important;font-size:12px!important;font-weight:600!important;color:#172b3d!important}
+body.pdf-export .system-section,body.pdf-export .detail-section{display:block!important;width:100%!important;height:auto!important;max-height:none!important;overflow:visible!important;break-inside:auto!important;page-break-inside:auto!important}
+body.pdf-export .collapse-content,body.pdf-export .collapse-content[hidden]{display:block!important}
+body.pdf-export .system-section.print-page-break{break-before:page!important;page-break-before:always!important}
+body.pdf-export .report-card,body.pdf-export .round-block,body.pdf-export .detail-table tr{break-inside:avoid!important;page-break-inside:avoid!important}
+body.pdf-export .patrol-signoff{display:block!important}
+body.pdf-export{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+</style>
 </head><body>
 <div class="app"><aside class="side">
 <div class="brand"><b>HOTEL SECURITY</b><small>MANAGEMENT SYSTEM</small></div>
@@ -67,7 +84,7 @@ html,body{width:100%;height:100%;min-height:100%;margin:0}body{overflow:hidden}.
 <section class="content" id="home">
 <section class="overview-report" id="reportPage">
 <div class="summary-heading"><div class="summary-brand"><img src="./1795254077344.jpg" alt="Khao Chi Chan Pattaya logo"><h1>Security Daily Summary</h1></div><div class="summary-date-area"><label for="summaryDate" class="summary-date-label">วันที่รายงาน</label><input type="date" id="summaryDate"><span id="summaryDatePrint" class="summary-date-print"></span></div></div>
-<div class="report-toolbar"><button class="open" onclick="loadDailySummary()">อัปเดตข้อมูลล่าสุด</button><button class="open" id="summaryPdfBtn" onclick="window.print()" disabled>Export PDF</button><button class="open" id="summaryCsvBtn" onclick="exportSummaryCsv()" disabled>Export Excel (CSV)</button></div>
+<div class="report-toolbar"><button class="open" onclick="loadDailySummary()">อัปเดตข้อมูลล่าสุด</button><button class="open" id="summaryPdfBtn" onclick="exportSummaryPdf()" disabled>Export PDF</button><button class="open" id="summaryCsvBtn" onclick="exportSummaryCsv()" disabled>Export Excel (CSV)</button></div>
 <div class="report-toolbar" id="summaryLogin"><label for="summaryUser">User ID</label><input id="summaryUser" placeholder="เช่น SEC001 หรือ ADMIN001" autocomplete="username"><label for="summaryPassword">Password</label><input id="summaryPassword" type="password" placeholder="รหัสผ่าน" autocomplete="current-password"><button class="open" onclick="summaryLoginNow()">เข้าสู่ระบบเจ้าหน้าที่</button><span id="summaryAuthStatus" class="sub" style="margin:0"></span></div>
 <div class="report-toolbar" id="summarySession" style="display:none"><span id="summaryStaffLabel"></span><button class="open" onclick="summaryLogout()">ออกจากระบบ</button></div>
 <section class="detail-section system-section"><h2><button class="collapse-toggle" type="button" aria-expanded="false" aria-controls="contractorTableContent" onclick="toggleSummaryTable('contractorTableContent',this)"><span>Contractor Registration</span><span class="collapse-meta">กดเพื่อดูตาราง <span class="collapse-chevron">⌄</span></span></button></h2><article class="report-card"><span class="pending" id="contractorBadge">รอข้อมูล</span><h3>Contractor Summary</h3><div class="metric-line"><span>รายการเข้า</span><b id="contractorEntries">—</b></div><div class="metric-line"><span>จำนวนทีมงาน</span><b id="contractorTeam">—</b></div><div class="metric-line good"><span>ลงเวลาออกแล้ว</span><b id="contractorOut">—</b></div><div class="metric-line warn"><span>ยังอยู่ในพื้นที่</span><b id="contractorInside">—</b></div></article>
@@ -217,4 +234,34 @@ function prepareSummaryPrint(){
  },{once:true});
 }
 window.addEventListener("beforeprint",prepareSummaryPrint);
+async function exportSummaryPdf(){
+ if(!summaryPayload)return;
+ if(typeof html2pdf==="undefined"){alert("ไม่สามารถโหลดระบบสร้าง PDF ได้ กรุณาตรวจสอบอินเทอร์เน็ตแล้วลองใหม่");return}
+ const report=document.getElementById("reportPage");
+ const sections=[...report.querySelectorAll(".system-section")];
+ const panels=[...report.querySelectorAll(".collapse-content")];
+ const prior=panels.map(p=>p.hidden);
+ panels.forEach(p=>{p.hidden=false});
+ sections.forEach(s=>s.classList.remove("print-page-break"));
+ const pageHeight=1031;
+ let used=report.querySelector(".summary-heading")?.offsetHeight||0;
+ sections.forEach((section,index)=>{
+  if(index>0){
+   const position=used%pageHeight;
+   const remaining=position===0?pageHeight:pageHeight-position;
+   if(remaining<=pageHeight*0.5){section.classList.add("print-page-break");used+=remaining}
+  }
+  used+=section.offsetHeight;
+ });
+ document.body.classList.add("pdf-export");
+ const date=document.getElementById("summaryDate").value||"report";
+ const options={margin:[12,12,12,12],filename:"Security-Daily-Summary-"+date+".pdf",image:{type:"jpeg",quality:0.98},html2canvas:{scale:2,useCORS:true,backgroundColor:"#ffffff",logging:false},jsPDF:{unit:"mm",format:"a4",orientation:"portrait"},pagebreak:{mode:["css","legacy"]}};
+ try{await html2pdf().set(options).from(report).save()}
+ catch(err){console.error("PDF export failed:",err);alert("สร้าง PDF ไม่สำเร็จ กรุณาลองอีกครั้ง")}
+ finally{
+  document.body.classList.remove("pdf-export");
+  sections.forEach(s=>s.classList.remove("print-page-break"));
+  panels.forEach((p,i)=>{p.hidden=prior[i]});
+ }
+}
 </script></body></html>
