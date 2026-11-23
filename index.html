@@ -362,12 +362,13 @@ async function loadDailySummary(silent=false){
   document.getElementById("contractorBadge").textContent="ข้อมูลล่าสุด";document.getElementById("contractorBadge").className="state-pill state-good";document.getElementById("permitBadge").textContent="ข้อมูลล่าสุด";document.getElementById("permitBadge").className="state-pill state-good";document.getElementById("patrolBadge").textContent="อัปเดตทุก 15 วินาที";document.getElementById("patrolBadge").className="state-pill state-good";
   let logbookMessages=[];
   let reportMessages=[];
+  let typeCounts={incident:0,info:0,patrol:0,contractor:0};
   try{
    const lbResponse=await fetch(SUMMARY_SUPABASE_URL+"/functions/v1/security-logbook-feed",{method:"POST",headers:{Authorization:"Bearer "+session.access_token,apikey:SUMMARY_SUPABASE_KEY,"Content-Type":"application/json"},body:JSON.stringify({action:"list",date:d})});
    const lbResult=await lbResponse.json();if(!lbResponse.ok)throw new Error(lbResult.error||"ไม่สามารถโหลด Logbook ได้");
    logbookMessages=(lbResult.messages||[]).slice().sort((a,b)=>new Date(a.line_timestamp||a.created_at)-new Date(b.line_timestamp||b.created_at));
    reportMessages=logbookMessages.filter(isLogbookReport);
-    const typeCounts={incident:0,info:0,patrol:0,contractor:0};reportMessages.forEach(x=>{const type=classifyLogbookMessage(x);if(typeCounts[type]!==undefined)typeCounts[type]++});
+    typeCounts={incident:0,info:0,patrol:0,contractor:0};reportMessages.forEach(x=>{const type=classifyLogbookMessage(x);if(typeCounts[type]!==undefined)typeCounts[type]++});
     document.getElementById("logbookIncidentCount").textContent=typeCounts.incident;document.getElementById("logbookInfoCount").textContent=typeCounts.info;document.getElementById("logbookPatrolCount").textContent=typeCounts.patrol;document.getElementById("logbookContractorCount").textContent=typeCounts.contractor;
     const typeLabels={incident:"เหตุการณ์ผิดปกติ",info:"แจ้งเพื่อทราบ",patrol:"รายงานตรวจพื้นที่",contractor:"รายงานงานผู้รับเหมา"};
     const lbTime=v=>v?new Date(v).toLocaleTimeString("th-TH",{timeZone:"Asia/Bangkok",hour:"2-digit",minute:"2-digit"}):"-";
