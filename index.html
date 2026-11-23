@@ -194,7 +194,7 @@ function toggleSummaryTable(id,button){
  if(hint){const chevron=hint.querySelector(".collapse-chevron");hint.firstChild.textContent=willOpen?"กดเพื่อซ่อน ":"กดเพื่อดูตาราง ";if(chevron)hint.appendChild(chevron);}
 }
 function classifyLogbookMessage(x){const category=String(x.category||"").toLowerCase();if(category==="incident")return "incident";if(category==="patrol_notice")return "patrol";if(category==="contractor_notice")return "contractor";if(category==="info")return "info";return "conversation"}
-function isLogbookReport(x){return String(x.destination||"")==="security_logbook"&&String(x.status||"")==="auto_saved"&&String(x.category||"")==="incident"}
+function isLogbookReport(x){const destination=String(x.destination||"");const status=String(x.status||"");const autoSavedReport=destination==="security_logbook"&&status==="auto_saved"&&String(x.category||"")==="incident";const securityApprovedReport=destination==="manual_review"&&status==="approved";return autoSavedReport||securityApprovedReport}
 function isIncidentLogbookMessage(x){return /(?:มี|พบ)\s*บุคคลภายนอก|อุบัติเหตุ|บาดเจ็บ|ไฟไหม้|เพลิงไหม้|สัตว์|ไม่มี\s*ไฟ|ไม่มี\s*น้ำ|เกิด\s*ความเสียหาย|สูญหาย|ทะเลาะวิวาท|ลักทรัพย์/.test(String(x.message_text||"").toLowerCase())}
 function escStatusClass(k){return String(k||"").replace(/[^a-z0-9_-]/gi,"");}
 let reportPeriod="daily";
