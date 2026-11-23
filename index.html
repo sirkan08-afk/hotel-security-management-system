@@ -123,7 +123,6 @@ body.pdf-export{-webkit-print-color-adjust:exact;print-color-adjust:exact}
 <section class="detail-section" id="summaryCharts" style="margin-bottom:14px">
  <h2 style="font-size:16px;margin:0 0 12px">กราฟสรุปผลการดำเนินงาน</h2>
  <div class="chart-panel"><h3>จำนวนรายการแยกตามระบบ</h3><div id="categoryChart" class="bar-chart" aria-label="กราฟจำนวนรายการแยกตามระบบ"></div></div>
- <div class="chart-panel" id="trendChartPanel" hidden><h3>แนวโน้มจำนวนรายการรายวัน</h3><div class="trend-scroll"><div id="trendChart" class="bar-chart trend-chart" aria-label="กราฟแนวโน้มจำนวนรายการรายวัน"></div></div></div>
 </section>
 <section class="detail-section system-section"><h2><button class="collapse-toggle" type="button" aria-expanded="false" aria-controls="contractorTableContent" onclick="toggleSummaryTable('contractorTableContent',this)"><span>Contractor Registration</span><span class="collapse-meta">กดเพื่อดูตาราง <span class="collapse-chevron">⌄</span></span></button></h2><article class="report-card"><span class="pending" id="contractorBadge">รอข้อมูล</span><h3>Contractor Summary</h3><div class="metric-line"><span>รายการเข้า</span><b id="contractorEntries">—</b></div><div class="metric-line"><span>จำนวนทีมงาน</span><b id="contractorTeam">—</b></div><div class="metric-line good"><span>ลงเวลาออกแล้ว</span><b id="contractorOut">—</b></div><div class="metric-line warn"><span>ยังอยู่ในพื้นที่</span><b id="contractorInside">—</b></div></article>
 <div class="collapse-content" id="contractorTableContent" hidden>
@@ -225,11 +224,8 @@ function renderBarChart(targetId,items,variant="category"){
   return '<div class="bar-column"><div class="bar-value">'+value.toLocaleString("th-TH")+'</div><div class="bar-fill" style="height:'+height+'px" title="'+String(item.label).replace(/&/g,"&amp;").replace(/"/g,"&quot;")+' : '+value+'"></div><div class="bar-label">'+String(item.label).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")+'</div></div>';
  }).join("");
 }
-function renderSummaryCharts(categoryValues,trendValues=null){
+function renderSummaryCharts(categoryValues){
  renderBarChart("categoryChart",categoryValues);
- const panel=document.getElementById("trendChartPanel");
- if(trendValues&&trendValues.length){panel.hidden=false;renderBarChart("trendChart",trendValues,"trend")}
- else{panel.hidden=true;document.getElementById("trendChart").innerHTML=""}
 }
 function summaryCategoryValues(totals){
  return [
@@ -293,8 +289,7 @@ async function loadPeriodSummary(silent=false){
    const status=String(permit.status||"unknown");
    totals.workPermit.statuses[status]=(totals.workPermit.statuses[status]||0)+1;
   });
-  const trendValues=results.map(({date,summary:r,messages})=>({label:date.slice(8,10)+"/"+date.slice(5,7),value:(Number(r.contractor?.entries)||0)+(Number(r.workPermit?.total)||0)+(Number(r.patrol?.recordedChecks)||0)+(messages||[]).length}));
-  renderSummaryCharts(summaryCategoryValues(totals),trendValues);
+  renderSummaryCharts(summaryCategoryValues(totals));
   document.getElementById("contractorEntries").textContent=totals.contractor.entries;document.getElementById("contractorTeam").textContent=totals.contractor.teamMembers;document.getElementById("contractorOut").textContent=totals.contractor.checkedOut;document.getElementById("contractorInside").textContent=totals.contractor.stillOnSite;
   document.getElementById("permitTotal").textContent=totals.workPermit.total;
   const labels={draft:"ฉบับร่าง",submitted:"ส่งคำขอแล้ว",under_review:"กำลังตรวจสอบ",approved:"อนุมัติแล้ว",rejected:"ไม่อนุมัติ",revision_requested:"รอแก้ไขข้อมูล",closed:"ปิดงานแล้ว"};
