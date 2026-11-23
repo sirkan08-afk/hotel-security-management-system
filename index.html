@@ -193,8 +193,9 @@ function toggleSummaryTable(id,button){
  const hint=button.querySelector(".collapse-meta");
  if(hint){const chevron=hint.querySelector(".collapse-chevron");hint.firstChild.textContent=willOpen?"กดเพื่อซ่อน ":"กดเพื่อดูตาราง ";if(chevron)hint.appendChild(chevron);}
 }
+function isLogbookConversation(text){const s=String(text||"").replace(/\s+/g," ").trim();if(!s)return true;if(/^(รับทราบ|ทราบแล้ว|โอเค|ok|okay|ขอบคุณ|ขอบใจ|ครับ|ค่ะ|จ้า|ได้ครับ|ได้ค่ะ|👍|🙏)[.!\s]*$/i.test(s))return true;if(/^(ใคร|อะไร|ที่ไหน|เมื่อไหร่|เมื่อไร|ทำไม|อย่างไร|ยังไง|เท่าไหร่|กี่|มีใคร|ขอถาม|สอบถาม|รบกวนสอบถาม|ใช่ไหม|ได้ไหม|หรือไม่|ไหม\b)/i.test(s))return true;if(/^(ช่วย|รบกวน|ฝาก|กรุณา|โปรด|ขอให้|ให้ช่วย|แจ้งให้|ตรวจให้|เช็คให้|เช็กให้|ตามให้|ประสานให้|อย่าลืม|อย่าเพิ่ง|ขอความร่วมมือ)/i.test(s))return true;if(/[?？]$/.test(s)&&s.length<180)return true;return false}
 function classifyLogbookMessage(x){const category=String(x.category||"").toLowerCase();if(category==="incident")return "incident";if(category==="patrol_notice")return "patrol";if(category==="contractor_notice")return "contractor";if(category==="info")return "info";return "conversation"}
-function isLogbookReport(x){const destination=String(x.destination||"");const status=String(x.status||"");const autoSavedReport=destination==="security_logbook"&&status==="auto_saved"&&String(x.category||"")==="incident";const securityApprovedReport=destination==="manual_review"&&status==="approved";return autoSavedReport||securityApprovedReport}
+function isLogbookReport(x){const destination=String(x.destination||"");const status=String(x.status||"");const acceptedStatus=status==="auto_saved"||status==="approved";const acceptedDestination=destination==="security_logbook"||destination==="manual_review";return acceptedStatus&&acceptedDestination&&!isLogbookConversation(x.message_text)}
 function isIncidentLogbookMessage(x){return /(?:มี|พบ)\s*บุคคลภายนอก|อุบัติเหตุ|บาดเจ็บ|ไฟไหม้|เพลิงไหม้|สัตว์|ไม่มี\s*ไฟ|ไม่มี\s*น้ำ|เกิด\s*ความเสียหาย|สูญหาย|ทะเลาะวิวาท|ลักทรัพย์/.test(String(x.message_text||"").toLowerCase())}
 function escStatusClass(k){return String(k||"").replace(/[^a-z0-9_-]/gi,"");}
 let reportPeriod="daily";
