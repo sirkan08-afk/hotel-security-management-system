@@ -68,8 +68,8 @@ body.pdf-export .system-section.print-page-break{break-before:page!important;pag
 body.pdf-export .report-card,body.pdf-export .round-block,body.pdf-export .detail-table tr{break-inside:avoid!important;page-break-inside:avoid!important}
 body.pdf-export #logbookDetailRows tr[data-category="patrol"],body.pdf-export #logbookDetailRows tr[data-category="contractor"]{display:none!important}
 body.pdf-export .patrol-signoff{display:block!important}
-/* Daily PDF: show report summaries only; exclude raw Logbook chat and empty Patrol reporter sign-off. */
-body.pdf-export #logbookTableContent,body.pdf-export #patrolSignoff{display:none!important}
+/* Daily PDF: exclude the entire Security Logbook section, charts, and empty Patrol reporter sign-off. */
+body.pdf-export .system-section:has(#logbookIncidentCount),body.pdf-export #summaryCharts,body.pdf-export #patrolSignoff{display:none!important}
 body.pdf-export #logbookTableContent .table-wrap{overflow:visible!important;width:100%!important}
 body.pdf-export #logbookTableContent table.detail-table{width:100%!important;min-width:0!important;table-layout:fixed!important;border-collapse:collapse!important;font-size:10px!important;line-height:1.45!important}
 body.pdf-export #logbookTableContent table.detail-table th:nth-child(1),body.pdf-export #logbookTableContent table.detail-table td:nth-child(1){width:7%!important}
