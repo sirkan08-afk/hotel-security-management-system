@@ -181,7 +181,7 @@ function reportDateRange(anchor,period){
  if(period==="weekly"){const dow=(d.getUTCDay()+6)%7;start=new Date(d);start.setUTCDate(d.getUTCDate()-dow);end=new Date(start);end.setUTCDate(start.getUTCDate()+6)}
  else {start=new Date(Date.UTC(d.getUTCFullYear(),d.getUTCMonth(),1));end=new Date(Date.UTC(d.getUTCFullYear(),d.getUTCMonth()+1,0))}
  const dates=[];for(let x=new Date(start);x<=end;x.setUTCDate(x.getUTCDate()+1))dates.push(isoDate(x));
- return {start:isoDate(start),end:isoDate(end),dates};
+ const endExclusive=new Date(end);endExclusive.setUTCDate(end.getUTCDate()+1);return {start:isoDate(start),end:isoDate(end),endExclusive:isoDate(endExclusive),dates};
 }
 function setReportPeriod(period){
  reportPeriod=period;
@@ -190,7 +190,7 @@ function setReportPeriod(period){
  document.getElementById("summaryTitle").textContent=daily?"Security Daily Summary":period==="weekly"?"Security Weekly Statistics":"Security Monthly Statistics";
  document.getElementById("summaryDateLabel").textContent=daily?"วันที่รายงาน": "เลือกวันที่ภายใน"+(period==="weekly"?"สัปดาห์":"เดือน") ;
  document.querySelectorAll(".system-section .collapse-content").forEach(el=>el.hidden=!daily);
- document.querySelectorAll(".system-section .collapse-toggle").forEach(el=>{el.style.display=daily?"flex":"none";el.setAttribute("aria-expanded","false")});
+ document.querySelectorAll(".system-section .collapse-toggle").forEach(el=>{el.style.display=daily?"flex":"none";el.setAttribute("aria-expanded","false")});document.getElementById("patrolSignoff").style.display=daily?"":"none";
  document.querySelectorAll(".report-toolbar button").forEach(b=>{if(b.id==="summaryPdfBtn"||b.id==="summaryCsvBtn")b.style.display=daily?"":"none"});
  document.getElementById("periodRange").textContent="";
  loadDailySummary();
@@ -234,8 +234,8 @@ async function loadPeriodSummary(silent=false){
   ["contractorBadge","permitBadge","patrolBadge","logbookBadge"].forEach(id=>{const e=document.getElementById(id);e.textContent="รวบรวมแล้ว "+range.dates.length+" วัน";e.className="state-pill state-good"});
   document.getElementById("contractorDetailRows").innerHTML="";document.getElementById("permitDetailRows").innerHTML="";document.getElementById("patrolRoundDetails").innerHTML="";document.getElementById("logbookDetailRows").innerHTML="";
   document.getElementById("summaryPdfBtn").disabled=true;document.getElementById("summaryCsvBtn").disabled=true;summaryPayload=null;
-  document.getElementById("periodRange").textContent=range.start+" 07:00 – "+range.end+" ก่อน 07:00";
-  document.getElementById("summaryDatePrint").textContent=range.start+" ถึง "+range.end;
+  document.getElementById("periodRange").textContent=range.start+" 07:00 – "+range.endExclusive+" 07:00";
+  document.getElementById("summaryDatePrint").textContent=range.start+" ถึง "+range.endExclusive;
   status.textContent=(reportPeriod==="weekly"?"สถิติรายสัปดาห์": "สถิติรายเดือน")+" · "+range.dates.length+" วันทำงาน · รอบเวลา 07:00–07:00 · อัปเดต "+new Date().toLocaleString("th-TH",{timeZone:"Asia/Bangkok"});
  }catch(err){status.textContent="โหลดสถิติไม่สำเร็จ: "+err.message;document.getElementById("summaryPdfBtn").disabled=true;document.getElementById("summaryCsvBtn").disabled=true}
 }
