@@ -195,6 +195,7 @@ function toggleSummaryTable(id,button){
 }
 function classifyLogbookMessage(x){const category=String(x.category||"").toLowerCase();if(category==="incident")return "incident";if(category==="patrol_notice")return "patrol";if(category==="contractor_notice")return "contractor";if(category==="info")return "info";return "conversation"}
 function isLogbookReport(x){return String(x.destination||"")==="security_logbook"&&String(x.status||"")==="auto_saved"&&String(x.category||"")==="incident"}
+function isIncidentLogbookMessage(x){return /(?:มี|พบ)\s*บุคคลภายนอก|อุบัติเหตุ|บาดเจ็บ|ไฟไหม้|เพลิงไหม้|สัตว์|ไม่มี\s*ไฟ|ไม่มี\s*น้ำ|เกิด\s*ความเสียหาย|สูญหาย|ทะเลาะวิวาท|ลักทรัพย์/.test(String(x.message_text||"").toLowerCase())}
 function escStatusClass(k){return String(k||"").replace(/[^a-z0-9_-]/gi,"");}
 let reportPeriod="daily";
 function dateFromISO(s){const [y,m,d]=s.split("-").map(Number);return new Date(Date.UTC(y,m-1,d))}
@@ -347,18 +348,20 @@ async function loadDailySummary(silent=false){
   document.getElementById("patrolInaccessible").textContent=result.patrol.inaccessible;
   document.getElementById("contractorBadge").textContent="ข้อมูลล่าสุด";document.getElementById("contractorBadge").className="state-pill state-good";document.getElementById("permitBadge").textContent="ข้อมูลล่าสุด";document.getElementById("permitBadge").className="state-pill state-good";document.getElementById("patrolBadge").textContent="อัปเดตทุก 15 วินาที";document.getElementById("patrolBadge").className="state-pill state-good";
   let logbookMessages=[];
+  let reportMessages=[];
   try{
    const lbResponse=await fetch(SUMMARY_SUPABASE_URL+"/functions/v1/security-logbook-feed",{method:"POST",headers:{Authorization:"Bearer "+session.access_token,apikey:SUMMARY_SUPABASE_KEY,"Content-Type":"application/json"},body:JSON.stringify({action:"list",date:d})});
    const lbResult=await lbResponse.json();if(!lbResponse.ok)throw new Error(lbResult.error||"ไม่สามารถโหลด Logbook ได้");
    logbookMessages=(lbResult.messages||[]).slice().sort((a,b)=>new Date(a.line_timestamp||a.created_at)-new Date(b.line_timestamp||b.created_at));
-   const reportMessages=logbookMessages.filter(isLogbookReport);
-   const incidents=reportMessages;
-   document.getElementById("logbookIncidentCount").textContent=incidents.length;document.getElementById("logbookInfoCount").textContent=0;document.getElementById("logbookPatrolCount").textContent=0;document.getElementById("logbookContractorCount").textContent=0;
+   reportMessages=logbookMessages.filter(isLogbookReport);
+   const incidents=reportMessages.filter(isIncidentLogbookMessage);
+   const infos=reportMessages.length-incidents.length;
+   document.getElementById("logbookIncidentCount").textContent=incidents.length;document.getElementById("logbookInfoCount").textContent=infos;document.getElementById("logbookPatrolCount").textContent=0;document.getElementById("logbookContractorCount").textContent=0;
    const lbTime=v=>v?new Date(v).toLocaleTimeString("th-TH",{timeZone:"Asia/Bangkok",hour:"2-digit",minute:"2-digit"}):"-";
-   document.getElementById("logbookDetailRows").innerHTML=reportMessages.length?reportMessages.map((x,i)=>{const label="รายงานเหตุการณ์ / แจ้งเพื่อทราบ";const message=String(x.message_text??"").replace(/\r\n?/g,"\n").replace(/[\t ]+/g," ");return '<tr data-category="incident"><td>'+(i+1)+'</td><td>'+lbTime(x.line_timestamp||x.created_at)+'</td><td>'+label+'</td><td><div class="logbook-message-text">'+escHtml(message)+'</div></td></tr>'}).join(""):'<tr><td colspan="4">ไม่มีรายงานที่บันทึกไว้ในวันที่เลือก</td></tr>';
+   document.getElementById("logbookDetailRows").innerHTML=reportMessages.length?reportMessages.map((x,i)=>{const incident=isIncidentLogbookMessage(x);const cat=incident?"incident":"info";const label=incident?"เหตุการณ์ผิดปกติ":"แจ้งเพื่อทราบ";const message=String(x.message_text??"").replace(/\r\n?/g,"\n").replace(/[\t ]+/g," ");return '<tr data-category="'+cat+'"><td>'+(i+1)+'</td><td>'+lbTime(x.line_timestamp||x.created_at)+'</td><td>'+label+'</td><td><div class="logbook-message-text">'+escHtml(message)+'</div></td></tr>'}).join(""):'<tr><td colspan="4">ไม่มีรายงานที่บันทึกไว้ในวันที่เลือก</td></tr>';
    document.getElementById("logbookBadge").textContent="ข้อมูลล่าสุด";document.getElementById("logbookBadge").className="state-pill state-good";
   }catch(lbErr){document.getElementById("logbookIncidentCount").textContent="—";document.getElementById("logbookInfoCount").textContent="—";document.getElementById("logbookPatrolCount").textContent="—";document.getElementById("logbookContractorCount").textContent="—";document.getElementById("logbookDetailRows").innerHTML='<tr><td colspan="4">โหลด Logbook ไม่สำเร็จ: '+escHtml(lbErr.message)+'</td></tr>';document.getElementById("logbookBadge").textContent="โหลดไม่สำเร็จ";document.getElementById("logbookBadge").className="state-pill state-warn";}
-  summaryPayload.logbook={messages:reportMessages,incident:reportMessages.length,info:0};
+  summaryPayload.logbook={messages:reportMessages,incident:reportMessages.filter(isIncidentLogbookMessage).length,info:reportMessages.filter(x=>!isIncidentLogbookMessage(x)).length};
   renderSummaryCharts([
    {label:"Contractor",value:Number(result.contractor.entries)||0},
    {label:"Work Permit",value:Number(result.workPermit.total)||0},
