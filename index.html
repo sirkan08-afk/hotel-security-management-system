@@ -219,11 +219,27 @@ async function loadPeriodSummary(silent=false){
    }));
    results.push(...part);
   }
-  results.forEach(({summary:r,messages})=>{
+  // A permit is counted once per submitted permit number and submission date.
+  // Keep one current record for duplicate keys, then derive status totals from
+  // the unique set instead of adding daily status snapshots together.
+  const uniquePermits=new Map();
+  results.forEach(({date,summary:r,messages})=>{
    totals.contractor.entries+=Number(r.contractor?.entries)||0;totals.contractor.teamMembers+=Number(r.contractor?.teamMembers)||0;totals.contractor.checkedOut+=Number(r.contractor?.checkedOut)||0;totals.contractor.stillOnSite+=Number(r.contractor?.stillOnSite)||0;
-   totals.workPermit.total+=Number(r.workPermit?.total)||0;Object.entries(r.workPermit?.statuses||{}).forEach(([k,v])=>totals.workPermit.statuses[k]=(totals.workPermit.statuses[k]||0)+(Number(v)||0));
+   (r.workPermit?.entries||[]).forEach(permit=>{
+    const permitNo=String(permit.permitNo||"").trim().toUpperCase().replace(/\\s+/g,"");
+    if(!permitNo)return;
+    const key=date+"|"+permitNo;
+    // Daily endpoint returns the live row status; duplicate entries with the
+    // same number on the same submission date must not increase the total.
+    uniquePermits.set(key,{...permit,date});
+   });
    totals.patrol.activePoints=Number(r.patrol?.activePoints)||totals.patrol.activePoints;for(const k of ["recordedChecks","normal","abnormal","inaccessible"])totals.patrol[k]+=Number(r.patrol?.[k])||0;
    messages.forEach(x=>{const k=classifyLogbookMessage(x);totals.logbook[k]=(totals.logbook[k]||0)+1});
+  });
+  totals.workPermit.total=uniquePermits.size;
+  uniquePermits.forEach(permit=>{
+   const status=String(permit.status||"unknown");
+   totals.workPermit.statuses[status]=(totals.workPermit.statuses[status]||0)+1;
   });
   document.getElementById("contractorEntries").textContent=totals.contractor.entries;document.getElementById("contractorTeam").textContent=totals.contractor.teamMembers;document.getElementById("contractorOut").textContent=totals.contractor.checkedOut;document.getElementById("contractorInside").textContent=totals.contractor.stillOnSite;
   document.getElementById("permitTotal").textContent=totals.workPermit.total;
