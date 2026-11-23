@@ -226,7 +226,7 @@ async function loadPeriodSummary(silent=false){
   results.forEach(({date,summary:r,messages})=>{
    totals.contractor.entries+=Number(r.contractor?.entries)||0;totals.contractor.teamMembers+=Number(r.contractor?.teamMembers)||0;totals.contractor.checkedOut+=Number(r.contractor?.checkedOut)||0;totals.contractor.stillOnSite+=Number(r.contractor?.stillOnSite)||0;
    (r.workPermit?.entries||[]).forEach(permit=>{
-    const permitNo=String(permit.permitNo||"").trim().toUpperCase().replace(/\\s+/g,"");
+    const permitNo=String(permit.permitNo||"").trim().toUpperCase().replace(/\s+/g,"");
     if(!permitNo)return;
     const key=date+"|"+permitNo;
     // Daily endpoint returns the live row status; duplicate entries with the
