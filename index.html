@@ -31,7 +31,7 @@ html,body{width:100%;height:100%;min-height:100%;margin:0}body{overflow:hidden}.
 .system-section{margin-top:18px}.system-section>.report-card{margin:0 0 14px;min-height:0;box-shadow:none}.subheading{font-size:13px;margin:14px 0 8px;color:#334155}.round-summary{margin:0 0 14px}.round-summary table{width:100%;border-collapse:collapse;font-size:13px}.round-summary th,.round-summary td{border:1px solid var(--line);padding:10px 9px;text-align:center;white-space:nowrap}.round-summary th{background:#f4f7fa;color:#334155}.round-summary td:first-child,.round-summary th:first-child{text-align:left;font-weight:700}.round-summary .normal{color:#15803d;font-weight:800}.round-summary .abnormal{color:#b91c1c;font-weight:800}.round-summary .inaccessible{color:#b45309;font-weight:800}.round-summary .total{font-weight:800;color:#142b43}.round-block{margin:10px 0}.round-block h3{font-size:14px}.round-block p{margin:6px 0;color:#64748b;font-size:12px}.detail-section{background:#fff;border:1px solid var(--line);border-radius:12px;padding:16px;margin-top:14px;break-inside:avoid}.detail-section h2{font-size:15px;margin:0 0 10px}.table-wrap{overflow-x:auto}table.detail-table{width:100%;border-collapse:collapse;font-size:12px;min-width:620px}table.detail-table th,table.detail-table td{border:1px solid var(--line);padding:7px 8px;text-align:left;vertical-align:top}table.detail-table th{background:#f4f7fa}.round-block{border:1px solid var(--line);border-radius:9px;padding:10px;margin:10px 0;break-inside:avoid}.round-block h3{font-size:13px;margin:0 0 8px}.pending{display:inline-block;font-size:10px;color:#8a6418;background:#fff5d9;padding:5px 8px;border-radius:20px;margin-bottom:10px}.report-note{margin-top:16px;padding:14px;background:#f7f9fb;border:1px solid var(--line);border-radius:10px;font-size:12px;line-height:1.7;color:#536579}.overview-report{margin-top:30px;padding:0}.note{background:#fff8e8;border:1px solid #f0dfb8;border-radius:9px;padding:13px 15px;font-size:12px;color:#795b1a;line-height:1.7;margin-top:18px}
 #workspace{display:none;flex:1 1 0;min-width:0;min-height:0;height:0;background:#e9eef3;overflow:hidden}#workspace.visible{display:flex;flex-direction:column}.workbar{background:#fff;border-bottom:1px solid var(--line);padding:10px 16px;display:flex;align-items:center;gap:10px}.workbar strong{font-size:13px}.workbar .spacer{flex:1}.workbar a{font-size:12px;color:var(--blue)}iframe{display:block;flex:1 1 0;border:0;width:100%;max-width:100%;height:0;min-height:0;min-width:0;background:#fff;touch-action:pan-x pan-y}
 @media(max-width:850px){.app{grid-template-columns:minmax(0,1fr);grid-template-rows:auto minmax(0,1fr)}.side{min-width:0;padding:8px 10px;gap:7px}.brand{padding:2px 6px 7px}.brand b{font-size:14px}.brand small{font-size:11px}nav{display:flex;gap:5px;overflow-x:auto;overflow-y:hidden;max-width:100%;padding-bottom:3px;scrollbar-width:thin;-webkit-overflow-scrolling:touch}nav button{flex:0 0 auto;white-space:nowrap;padding:8px 10px;font-size:12px}.navlabel,.foot{display:none}.main{min-height:0}.top{height:42px;min-height:42px;padding:0 12px;font-size:12px}.top small{font-size:10px}.content{padding:12px;max-width:none;margin:0}.grid,.report-grid{grid-template-columns:minmax(0,1fr)}#workspace{min-width:0;min-height:0;height:auto;flex:1 1 0}.workbar{flex:0 0 auto;padding:7px 9px;gap:7px}.workbar strong{font-size:12px}.workbar a{font-size:11px}.workbar .open{padding:8px 10px;font-size:11px}iframe{width:100%;min-width:0;min-height:0;height:0;flex:1 1 0}}
-</style><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+ .period-btn{background:#e8eef4;color:#1d4668}.period-btn.active{background:#1d4668;color:#fff}.period-toolbar{align-items:center}.period-toolbar strong{font-size:12px;color:#536579}@media(max-width:520px){.period-toolbar{gap:7px}.period-toolbar .open{padding:8px 10px}} </style><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.3/html2pdf.bundle.min.js"></script>
 <style>.summary-brand{display:flex;align-items:center;gap:12px;min-width:0}.summary-brand img{width:58px;height:62px;object-fit:contain;display:block}.summary-brand h1{margin:0}@media print{.summary-brand{display:flex!important;align-items:center!important;gap:10px!important}.summary-brand img{width:52px!important;height:56px!important;object-fit:contain!important;print-color-adjust:exact;-webkit-print-color-adjust:exact}.summary-brand h1{font-size:18px!important;white-space:nowrap!important}}@media(max-width:520px){.summary-brand img{width:44px;height:48px}.summary-brand h1{font-size:19px}}.summary-heading{display:flex;align-items:center;justify-content:space-between;gap:12px}.summary-heading h1{margin:0}.summary-date-area{display:flex;align-items:center;justify-content:flex-end;gap:8px}.patrol-signoff{display:none}.signoff-line{width:220px;max-width:55%;border-bottom:1px solid #64748b;margin:0 0 8px auto}.signoff-label,.signoff-role,.signoff-name{text-align:right;font-size:12px;color:#334155}.signoff-name{font-weight:700;font-size:14px;color:#172b3d}.signoff-role{color:#64748b}@media print{.summary-heading{display:flex!important;align-items:center!important;justify-content:space-between!important;gap:12px!important;margin-bottom:12px!important}.summary-heading h1{font-size:18px!important;white-space:nowrap!important}.summary-date-area{margin-left:auto!important;justify-content:flex-end!important}.summary-date-label,#summaryDate{display:none!important}.summary-date-print{display:inline!important;font-size:12px!important;font-weight:600!important;color:#172b3d!important;white-space:nowrap!important}.report-toolbar{display:none!important}.report-note{display:none!important}.patrol-signoff{display:block!important;margin-top:8px!important;padding-top:6px!important;break-inside:auto!important;page-break-inside:auto!important}.signoff-line{margin-left:auto!important;margin-bottom:4px!important}}.summary-date-print{display:none}@media print{#summaryDate{display:none!important}.summary-date-print{display:inline!important;font-size:12px;color:#172b3d;font-weight:600}.report-toolbar{gap:8px!important}.system-section>h2{break-after:avoid!important;page-break-after:avoid!important}.system-section>.report-card{break-before:avoid!important;page-break-before:avoid!important;break-inside:avoid!important;page-break-inside:avoid!important}.system-section>.subheading{break-after:avoid!important;page-break-after:avoid!important}}@media print{html,body{width:auto!important;height:auto!important;min-height:0!important;overflow:visible!important;background:#fff!important}body{overflow:visible!important}.app,.main,.content{display:block!important;width:auto!important;height:auto!important;min-height:0!important;max-height:none!important;overflow:visible!important}.side,.top,#summaryLogin,#summarySession,.report-toolbar button,#home>.hero,#home>.sub,#home>.grid,#home>.section{display:none!important}.content{max-width:none!important;margin:0!important;padding:0!important}.overview-report{display:block!important;width:100%!important;padding:0!important;margin:0!important}.detail-section,.system-section{display:block!important;width:100%!important;height:auto!important;max-height:none!important;overflow:visible!important;break-inside:auto!important;page-break-inside:auto!important}.report-card,.round-block{break-inside:avoid;page-break-inside:avoid}.detail-table tr{break-inside:avoid;page-break-inside:avoid}table{width:100%!important;border-collapse:collapse!important}thead{display:table-header-group}tfoot{display:table-footer-group}body{-webkit-print-color-adjust:exact;print-color-adjust:exact}}</style>
 
@@ -99,7 +99,8 @@ body.pdf-export{-webkit-print-color-adjust:exact;print-color-adjust:exact}
 <header class="top"><b>Hotel Security Management System</b><small>SECURITY DEPARTMENT</small></header>
 <section class="content" id="home">
 <section class="overview-report" id="reportPage">
-<div class="summary-heading"><div class="summary-brand"><img src="./1795254077344.jpg" alt="Khao Chi Chan Pattaya logo"><h1>Security Daily Summary</h1></div><div class="summary-date-area"><label for="summaryDate" class="summary-date-label">วันที่รายงาน</label><input type="date" id="summaryDate"><span id="summaryDatePrint" class="summary-date-print"></span></div></div>
+<div class="summary-heading"><div class="summary-brand"><img src="./1795254077344.jpg" alt="Khao Chi Chan Pattaya logo"><h1 id="summaryTitle">Security Reports</h1></div><div class="summary-date-area"><label for="summaryDate" class="summary-date-label" id="summaryDateLabel">วันที่อ้างอิง</label><input type="date" id="summaryDate"><span id="summaryDatePrint" class="summary-date-print"></span></div></div>
+<div class="report-toolbar period-toolbar"><strong>ประเภทรายงาน</strong><button class="open period-btn active" data-period="daily" onclick="setReportPeriod('daily')">Daily</button><button class="open period-btn" data-period="weekly" onclick="setReportPeriod('weekly')">Weekly</button><button class="open period-btn" data-period="monthly" onclick="setReportPeriod('monthly')">Monthly</button><span id="periodRange" style="font-size:12px;color:#64748b"></span></div>
 <div class="report-toolbar"><button class="open" onclick="loadDailySummary()">อัปเดตข้อมูลล่าสุด</button><button class="open" id="summaryPdfBtn" onclick="exportSummaryPdf()" disabled>Export PDF</button><button class="open" id="summaryCsvBtn" onclick="exportSummaryCsv()" disabled>Export Excel (CSV)</button></div>
 <div class="report-toolbar" id="summaryLogin"><label for="summaryUser">User ID</label><input id="summaryUser" placeholder="เช่น SEC001 หรือ ADMIN001" autocomplete="username"><label for="summaryPassword">Password</label><input id="summaryPassword" type="password" placeholder="รหัสผ่าน" autocomplete="current-password"><button class="open" onclick="summaryLoginNow()">เข้าสู่ระบบเจ้าหน้าที่</button><span id="summaryAuthStatus" class="sub" style="margin:0"></span></div>
 <div class="report-toolbar" id="summarySession" style="display:none"><span id="summaryStaffLabel"></span><button class="open" onclick="summaryLogout()">ออกจากระบบ</button></div>
@@ -172,7 +173,98 @@ function toggleSummaryTable(id,button){
 }
 function classifyLogbookMessage(x){const msg=String(x.message_text||"").toLowerCase();if(/(?:มี|พบ)\s*บุคคลภายนอก|อุบัติเหตุ|สัตว์|ไม่มี\s*ไฟ|ไม่มี\s*น้ำ|เกิด\s*ความเสียหาย/.test(msg))return "incident";if(/มี\s*ผู้รับเหมา(?:\s*เข้า)?\s*ทำงาน|ผู้รับเหมาทำงาน/.test(msg))return "contractor";if(/เดิน\s*ตรวจ|ตรวจ\s*พื้นที่|ตรวจ\s*อาคาร|ตรวจ\s*รอบ/.test(msg))return "patrol";if(msg.includes("แจ้งเพื่อทราบ"))return "info";return "info"}
 function escStatusClass(k){return String(k||"").replace(/[^a-z0-9_-]/gi,"");}
+let reportPeriod="daily";
+function dateFromISO(s){const [y,m,d]=s.split("-").map(Number);return new Date(Date.UTC(y,m-1,d))}
+function isoDate(dt){return dt.getUTCFullYear()+"-"+String(dt.getUTCMonth()+1).padStart(2,"0")+"-"+String(dt.getUTCDate()).padStart(2,"0")}
+function reportDateRange(anchor,period){
+ const d=dateFromISO(anchor);let start,end;
+ if(period==="weekly"){const dow=(d.getUTCDay()+6)%7;start=new Date(d);start.setUTCDate(d.getUTCDate()-dow);end=new Date(start);end.setUTCDate(start.getUTCDate()+6)}
+ else {start=new Date(Date.UTC(d.getUTCFullYear(),d.getUTCMonth(),1));end=new Date(Date.UTC(d.getUTCFullYear(),d.getUTCMonth()+1,0))}
+ const dates=[];for(let x=new Date(start);x<=end;x.setUTCDate(x.getUTCDate()+1))dates.push(isoDate(x));
+ const endExclusive=new Date(end);endExclusive.setUTCDate(end.getUTCDate()+1);return {start:isoDate(start),end:isoDate(end),endExclusive:isoDate(endExclusive),dates};
+}
+function setReportPeriod(period){
+ reportPeriod=period;
+ document.querySelectorAll(".period-btn").forEach(b=>b.classList.toggle("active",b.dataset.period===period));
+ const daily=period==="daily";
+ document.getElementById("summaryTitle").textContent=daily?"Security Daily Summary":period==="weekly"?"Security Weekly Statistics":"Security Monthly Statistics";
+ document.getElementById("summaryDateLabel").textContent=daily?"วันที่รายงาน": "เลือกวันที่ภายใน"+(period==="weekly"?"สัปดาห์":"เดือน") ;
+ document.querySelectorAll(".system-section .collapse-content").forEach(el=>el.hidden=!daily);
+ document.querySelectorAll(".system-section .collapse-toggle").forEach(el=>{el.style.display=daily?"flex":"none";el.setAttribute("aria-expanded","false")});document.getElementById("patrolSignoff").style.display=daily?"":"none";
+ document.querySelectorAll(".report-toolbar button").forEach(b=>{if(b.id==="summaryPdfBtn"||b.id==="summaryCsvBtn")b.style.display=daily?"":"none"});
+ document.getElementById("periodRange").textContent="";
+ loadDailySummary();
+}
+async function loadPeriodSummary(silent=false){
+ const anchorDate=document.getElementById("summaryDate").value,status=document.getElementById("summaryStatus");
+ if(!anchorDate){status.textContent="กรุณาเลือกวันที่";return}
+ const {data:{session}}=await summaryDb.auth.getSession();if(!session){status.textContent="กรุณาเข้าสู่ระบบเจ้าหน้าที่ก่อน";return}
+ const range=reportDateRange(anchorDate,reportPeriod);
+ if(!silent)status.textContent="กำลังรวบรวมสถิติ "+range.dates.length+" วัน...";
+ const headers={Authorization:"Bearer "+session.access_token,apikey:SUMMARY_SUPABASE_KEY,"Content-Type":"application/json"};
+ const totals={contractor:{entries:0,teamMembers:0,checkedOut:0,stillOnSite:0},workPermit:{total:0,statuses:{}},patrol:{activePoints:0,recordedChecks:0,normal:0,abnormal:0,inaccessible:0},logbook:{incident:0,info:0,patrol:0,contractor:0}};
+ try{
+  const results=[];const batchSize=4;
+  for(let i=0;i<range.dates.length;i+=batchSize){
+   const batch=range.dates.slice(i,i+batchSize);
+   const part=await Promise.all(batch.map(async date=>{
+    const [sr,lr]=await Promise.all([
+     fetch(SUMMARY_SUPABASE_URL+"/functions/v1/security-daily-summary",{method:"POST",headers,body:JSON.stringify({date})}),
+     fetch(SUMMARY_SUPABASE_URL+"/functions/v1/security-logbook-feed",{method:"POST",headers,body:JSON.stringify({action:"list",date})})
+    ]);
+    const [s,l]=await Promise.all([sr.json(),lr.json()]);
+    if(!sr.ok)throw new Error(s.error||"โหลดสถิติระบบหลักไม่สำเร็จ ("+date+")");
+    if(!lr.ok)throw new Error(l.error||"โหลด Logbook ไม่สำเร็จ ("+date+")");
+    return {date,summary:s,messages:l.messages||[]};
+   }));
+   results.push(...part);
+  }
+  // A permit is counted once per submitted permit number and submission date.
+  // Keep one current record for duplicate keys, then derive status totals from
+  // the unique set instead of adding daily status snapshots together.
+  const uniquePermits=new Map();
+  results.forEach(({date,summary:r,messages})=>{
+   totals.contractor.entries+=Number(r.contractor?.entries)||0;totals.contractor.teamMembers+=Number(r.contractor?.teamMembers)||0;totals.contractor.checkedOut+=Number(r.contractor?.checkedOut)||0;totals.contractor.stillOnSite+=Number(r.contractor?.stillOnSite)||0;
+   (r.workPermit?.entries||[]).forEach(permit=>{
+    const permitNo=String(permit.permitNo||"").trim().toUpperCase().replace(/\s+/g,"");
+    if(!permitNo)return;
+    const key=date+"|"+permitNo;
+    // Daily endpoint returns the live row status; duplicate entries with the
+    // same number on the same submission date must not increase the total.
+    const candidate={...permit,date};
+    const existing=uniquePermits.get(key);
+    const candidateTime=Date.parse(permit.updatedAt||permit.createdAt||"")||0;
+    const existingTime=existing?(Date.parse(existing.updatedAt||existing.createdAt||"")||0):0;
+    // Prefer the row most recently updated; use creation time as a safe fallback.
+    // Stable id tie-break avoids depending on the database's unspecified row order.
+    if(!existing||candidateTime>existingTime||(candidateTime===existingTime&&String(permit.id||"")>String(existing.id||""))){
+     uniquePermits.set(key,candidate);
+    }
+   });
+   totals.patrol.activePoints=Number(r.patrol?.activePoints)||totals.patrol.activePoints;for(const k of ["recordedChecks","normal","abnormal","inaccessible"])totals.patrol[k]+=Number(r.patrol?.[k])||0;
+   messages.forEach(x=>{const k=classifyLogbookMessage(x);totals.logbook[k]=(totals.logbook[k]||0)+1});
+  });
+  totals.workPermit.total=uniquePermits.size;
+  uniquePermits.forEach(permit=>{
+   const status=String(permit.status||"unknown");
+   totals.workPermit.statuses[status]=(totals.workPermit.statuses[status]||0)+1;
+  });
+  document.getElementById("contractorEntries").textContent=totals.contractor.entries;document.getElementById("contractorTeam").textContent=totals.contractor.teamMembers;document.getElementById("contractorOut").textContent=totals.contractor.checkedOut;document.getElementById("contractorInside").textContent=totals.contractor.stillOnSite;
+  document.getElementById("permitTotal").textContent=totals.workPermit.total;
+  const labels={draft:"ฉบับร่าง",submitted:"ส่งคำขอแล้ว",under_review:"กำลังตรวจสอบ",approved:"อนุมัติแล้ว",rejected:"ไม่อนุมัติ",revision_requested:"รอแก้ไขข้อมูล",closed:"ปิดงานแล้ว"};
+  document.getElementById("permitStatuses").innerHTML=Object.entries(totals.workPermit.statuses).map(([k,v])=>'<span class="'+escStatusClass(k)+'">'+(labels[k]||k)+": "+v+'</span>').join("")||"ไม่มีรายการ";
+  document.getElementById("patrolPoints").textContent=totals.patrol.activePoints;document.getElementById("patrolChecks").textContent=totals.patrol.recordedChecks;document.getElementById("patrolNormal").textContent=totals.patrol.normal;document.getElementById("patrolAbnormal").textContent=totals.patrol.abnormal;document.getElementById("patrolInaccessible").textContent=totals.patrol.inaccessible;
+  document.getElementById("logbookIncidentCount").textContent=totals.logbook.incident;document.getElementById("logbookInfoCount").textContent=totals.logbook.info;document.getElementById("logbookPatrolCount").textContent=totals.logbook.patrol;document.getElementById("logbookContractorCount").textContent=totals.logbook.contractor;
+  ["contractorBadge","permitBadge","patrolBadge","logbookBadge"].forEach(id=>{const e=document.getElementById(id);e.textContent="รวบรวมแล้ว "+range.dates.length+" วัน";e.className="state-pill state-good"});
+  document.getElementById("contractorDetailRows").innerHTML="";document.getElementById("permitDetailRows").innerHTML="";document.getElementById("patrolRoundDetails").innerHTML="";document.getElementById("logbookDetailRows").innerHTML="";
+  document.getElementById("summaryPdfBtn").disabled=true;document.getElementById("summaryCsvBtn").disabled=true;summaryPayload=null;
+  document.getElementById("periodRange").textContent=range.start+" 07:00 – "+range.endExclusive+" 07:00";
+  document.getElementById("summaryDatePrint").textContent=range.start+" ถึง "+range.endExclusive;
+  status.textContent=(reportPeriod==="weekly"?"สถิติรายสัปดาห์": "สถิติรายเดือน")+" · "+range.dates.length+" วันทำงาน · รอบเวลา 07:00–07:00 · อัปเดต "+new Date().toLocaleString("th-TH",{timeZone:"Asia/Bangkok"});
+ }catch(err){status.textContent="โหลดสถิติไม่สำเร็จ: "+err.message;document.getElementById("summaryPdfBtn").disabled=true;document.getElementById("summaryCsvBtn").disabled=true}
+}
 async function loadDailySummary(silent=false){
+ if(reportPeriod!=="daily"){return loadPeriodSummary(silent)}
  const d=document.getElementById("summaryDate").value,status=document.getElementById("summaryStatus");
  if(!d){status.textContent="กรุณาเลือกวันที่รายงาน";return}
  const {data:{session}}=await summaryDb.auth.getSession();
@@ -236,7 +328,7 @@ function exportSummaryCsv(){
 function openApp(key){const app=apps[key];if(!app)return;document.getElementById("home").style.display="none";document.getElementById("workspace").classList.add("visible");document.getElementById("appTitle").textContent=app.title;document.getElementById("newTab").href=app.url;const frame=document.getElementById("appFrame");if(frame.src!==app.url)frame.src=app.url;setActive(key==="contractor"?"contractorNav":key==="work"?"workNav":key==="logbook"?"logbookNav":"patrolNav")}
 function showHome(){document.getElementById("workspace").classList.remove("visible");document.getElementById("home").style.display="block";setActive("homeNav")}
 function updateSummaryPrintDate(){const value=document.getElementById("summaryDate").value;const el=document.getElementById("summaryDatePrint");if(el&&value){const [y,m,d]=value.split("-");el.textContent=d+"/"+m+"/"+y.slice(-2)}}
-(function(){const d=new Date();const bangkok=new Date(d.toLocaleString("en-US",{timeZone:"Asia/Bangkok"}));document.getElementById("summaryDate").value=[bangkok.getFullYear(),String(bangkok.getMonth()+1).padStart(2,"0"),String(bangkok.getDate()).padStart(2,"0")].join("-");updateSummaryPrintDate();document.getElementById("summaryDate").addEventListener("change",updateSummaryPrintDate)})();
+(function(){const d=new Date();const bangkok=new Date(d.toLocaleString("en-US",{timeZone:"Asia/Bangkok"}));document.getElementById("summaryDate").value=[bangkok.getFullYear(),String(bangkok.getMonth()+1).padStart(2,"0"),String(bangkok.getDate()).padStart(2,"0")].join("-");updateSummaryPrintDate();document.getElementById("summaryDate").addEventListener("change",()=>{updateSummaryPrintDate();loadDailySummary()})})();
 if("serviceWorker" in navigator){window.addEventListener("load",()=>navigator.serviceWorker.register("./service-worker.js",{updateViaCache:"none"}).then(reg=>reg.update()).catch(err=>console.warn("PWA service worker:",err)));}
 
 function prepareSummaryPrint(){
