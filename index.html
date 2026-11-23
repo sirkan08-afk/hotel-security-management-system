@@ -208,6 +208,7 @@ function setReportPeriod(period){
  reportPeriod=period;
  document.querySelectorAll(".period-btn").forEach(b=>b.classList.toggle("active",b.dataset.period===period));
  const daily=period==="daily";
+ document.getElementById("summaryCharts").style.display=daily?"none":"";
  document.getElementById("summaryTitle").textContent=daily?"Security Daily Summary":period==="weekly"?"Security Weekly Statistics":"Security Monthly Statistics";
  document.getElementById("summaryDateLabel").textContent=daily?"วันที่รายงาน": "เลือกวันที่ภายใน"+(period==="weekly"?"สัปดาห์":"เดือน") ;
  document.querySelectorAll(".system-section .collapse-content").forEach(el=>el.hidden=!daily);
