@@ -66,7 +66,7 @@ body.pdf-export .collapse-meta{display:none!important}
 body.pdf-export .pending,body.pdf-export .state-pill{display:none!important}
 body.pdf-export .system-section.print-page-break{break-before:page!important;page-break-before:always!important}
 body.pdf-export .report-card,body.pdf-export .round-block,body.pdf-export .detail-table tr{break-inside:avoid!important;page-break-inside:avoid!important}
-body.pdf-export #logbookDetailRows tr[data-category="patrol"],body.pdf-export #logbookDetailRows tr[data-category="contractor"]{display:none!important}
+/* Keep all classified Logbook records visible in the PDF, including patrol and contractor entries. */
 body.pdf-export .patrol-signoff{display:block!important}
 /* Daily PDF: hide charts but keep the signed-in staff reporter visible. */
 body.pdf-export #summaryCharts{display:none!important}
