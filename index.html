@@ -586,7 +586,7 @@ function renderMonthlyReport(data){
    '<table class="monthly-table"><thead><tr><th style="width:6%">ลำดับ</th><th style="width:15%">วันที่</th><th style="width:10%">เวลา</th><th style="width:19%">ผู้รายงาน</th><th style="width:50%">เหตุการณ์ / สิ่งที่บันทึกว่าเกิดขึ้น</th></tr></thead><tbody>'+ (eventRows||'<tr><td colspan="5" class="monthly-empty">ไม่พบรายการ Logbook ที่เข้าข่ายผิดปกติในเดือนนี้</td></tr>') +'</tbody></table>'+
 
   '</section>'+
-  '<div class="monthly-signoff"><b>ผู้จัดทำรายงาน</b><br>'+txt(reporter.fullName||"ไม่ระบุชื่อ")+'<br>'+txt(reporter.employeeCode||"")+' · '+txt(reporter.title||"Security Staff")+'</div>'+
+  '<div class="monthly-signoff"><b>ผู้จัดทำรายงาน</b><br>'+txt(reporter.fullName||"ไม่ระบุชื่อ")+'<br>'+txt(reporter.title||"Security Staff")+'</div>'+
 
  '</div>';
 }
