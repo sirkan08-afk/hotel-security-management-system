@@ -104,14 +104,56 @@ const CHECKS=[
  {key:'night',label:'ภาพกลางคืน / IR',detail:'ภาพในสภาพแสงน้อยหรืออินฟราเรดทำงานปกติ'}
 ];
 const demoCameras=[
- {id:'CAM-001',name:'Main Entrance',area:'ทางเข้า',channel:'',memo:'ข้อมูลตัวอย่าง - แก้ไขเป็นกล้องจริง'},
- {id:'CAM-002',name:'Lobby',area:'อาคาร A',channel:'',memo:'ข้อมูลตัวอย่าง - แก้ไขเป็นกล้องจริง'},
- {id:'CAM-003',name:'Parking Area',area:'ลานจอดรถ',channel:'',memo:'ข้อมูลตัวอย่าง - แก้ไขเป็นกล้องจริง'},
- {id:'CAM-004',name:'Swimming Pool',area:'สระว่ายน้ำ',channel:'',memo:'ข้อมูลตัวอย่าง - แก้ไขเป็นกล้องจริง'},
- {id:'CAM-005',name:'Building F',area:'อาคาร F',channel:'',memo:'ข้อมูลตัวอย่าง - แก้ไขเป็นกล้องจริง'},
- {id:'CAM-006',name:'Service Area',area:'พื้นที่บริการ',channel:'',memo:'ข้อมูลตัวอย่าง - แก้ไขเป็นกล้องจริง'},
- {id:'CAM-007',name:'Back Entrance',area:'ทางเข้าด้านหลัง',channel:'',memo:'ข้อมูลตัวอย่าง - แก้ไขเป็นกล้องจริง'},
- {id:'CAM-008',name:'Beach Area',area:'ชายหาด',channel:'',memo:'ข้อมูลตัวอย่าง - แก้ไขเป็นกล้องจริง'}
+ {id:'CAM-001',name:"ทางเข้าห้องอาหาร",area:"F",channel:'',memo:''},
+ {id:'CAM-002',name:"ทางเดินระหว่างบาร์/ครัว",area:"F",channel:'',memo:''},
+ {id:'CAM-003',name:"ภายในบาร์",area:"F",channel:'',memo:''},
+ {id:'CAM-004',name:"ทางเข้าห้องอาหารข้างบาร์",area:"F",channel:'',memo:''},
+ {id:'CAM-005',name:"หน้าบาร์",area:"F",channel:'',memo:''},
+ {id:'CAM-006',name:"ห้องอาหาร 2 มุมหน้าประตูทางเข้า",area:"F",channel:'',memo:''},
+ {id:'CAM-007',name:"ห้องอาหารกระจก มุมกลางโต๊ะยาว",area:"F",channel:'',memo:''},
+ {id:'CAM-008',name:"ห้องอาหาร 2 มุมตรงข้ามหน้าประตูทางเข้า",area:"F",channel:'',memo:''},
+ {id:'CAM-009',name:"สระน้ำฝั่งซ้าย",area:"F",channel:'',memo:''},
+ {id:'CAM-010',name:"หน้าบาร์บนเครื่องกาแฟ",area:"F",channel:'',memo:''},
+ {id:'CAM-011',name:"โต๊ะอาหารด้านนอก",area:"F",channel:'',memo:''},
+ {id:'CAM-012',name:"สะพานทางเดินระหว่างอาคาร A-B",area:"B",channel:'',memo:''},
+ {id:'CAM-013',name:"หน้าทางเข้าห้องอาหาร",area:"F",channel:'',memo:''},
+ {id:'CAM-014',name:"ด้านหลังห้องอาหาร 2",area:"F",channel:'',memo:''},
+ {id:'CAM-015',name:"สระน้ำฝั่งขวา",area:"F",channel:'',memo:''},
+ {id:'CAM-016',name:"หน้าล็อบบี้",area:"B",channel:'',memo:''},
+ {id:'CAM-017',name:"ในสุดล็อบบี้",area:"B",channel:'',memo:''},
+ {id:'CAM-018',name:"หน้าห้องพักอาคาร B",area:"B",channel:'',memo:''},
+ {id:'CAM-019',name:"หน้าลิฟท์ชั้น G",area:"C",channel:'',memo:''},
+ {id:'CAM-020',name:"หน้าลิฟท์ชั้น 2",area:"C",channel:'',memo:''},
+ {id:'CAM-021',name:"หน้าทางเข้าล็อบบี้",area:"B",channel:'',memo:''},
+ {id:'CAM-022',name:"มุมซ้ายหน้าล็อบบี้",area:"B",channel:'',memo:''},
+ {id:'CAM-023',name:"ห้องเซิร์ฟเวอร์",area:"T2",channel:'',memo:''},
+ {id:'CAM-024',name:"มุมโต๊ะรับรองแขกหน้าล็อบบี้",area:"B",channel:'',memo:''},
+ {id:'CAM-025',name:"หน้าลิฟท์ชั้น 3",area:"C",channel:'',memo:''},
+ {id:'CAM-026',name:"หน้าลิฟท์ชั้น 4",area:"C",channel:'',memo:''},
+ {id:'CAM-027',name:"วงเวียนหน้าล็อบบี้",area:"ถนนลานจอด",channel:'',memo:''},
+ {id:'CAM-028',name:"กลางห้อง Liva ชั้น LG",area:"A",channel:'',memo:''},
+ {id:'CAM-029',name:"ทางเดินหน้าห้องพัก",area:"A",channel:'',memo:''},
+ {id:'CAM-030',name:"ห้องรับรองชั้น G",area:"A",channel:'',memo:''},
+ {id:'CAM-031',name:"บาร์ใน Liva ชั้น LG",area:"A",channel:'',memo:''},
+ {id:'CAM-032',name:"อาคาร D",area:"ถนนลานจอด",channel:'',memo:''},
+ {id:'CAM-033',name:"อาคาร A",area:"ถนนลานจอด",channel:'',memo:''},
+ {id:'CAM-034',name:"หน้าบันไดทางขึ้นอาคาร D-ทางเดินริมน้ำ",area:"อาคาร D",channel:'',memo:''},
+ {id:'CAM-035',name:"กำแพงประตูทางแยกเข้าล็อบบี้/อาคาร F",area:"อาคาร F",channel:'',memo:''},
+ {id:'CAM-036',name:"Cap44",area:"ถนนทางเดิน",channel:'',memo:''},
+ {id:'CAM-037',name:"บันไดทางขึ้น/ลงฝั่งริมน้ำ",area:"อาคาร D",channel:'',memo:''},
+ {id:'CAM-038',name:"ข้าง Cap41-44",area:"ถนนทางเข้า",channel:'',memo:''},
+ {id:'CAM-039',name:"หน้าบันไดทางลง",area:"อาคาร D",channel:'',memo:''},
+ {id:'CAM-040',name:"สุดลานจอดฝั่งอาคาร D",area:"ลานจอดรถ",channel:'',memo:''},
+ {id:'CAM-041',name:"กลางบันไดหน้าห้องพัก",area:"อาคาร D",channel:'',memo:''},
+ {id:'CAM-042',name:"ลานกว้างข้างห้อง E36",area:"E",channel:'',memo:''},
+ {id:'CAM-043',name:"แทงค์น้ำหลังอาคาร A",area:"A",channel:'',memo:''},
+ {id:'CAM-044',name:"ช่องจอดจักรยาน",area:"A",channel:'',memo:''},
+ {id:'CAM-045',name:"กลางสระน้ำอาคาร E",area:"E",channel:'',memo:''},
+ {id:'CAM-046',name:"ริมสระน้ำอาคาร E ฝั่งขวา",area:"E",channel:'',memo:''},
+ {id:'CAM-047',name:"ถนนทางเดินทางห้อง Cap53",area:"Cap51-56",channel:'',memo:''},
+ {id:'CAM-048',name:"ถนนทางเดินหน้าห้อง/ทางขึ้นลงห้องปั๊ม",area:"Bali",channel:'',memo:''},
+ {id:'CAM-049',name:"หน้า Cap51",area:"ถนนทางโค้ง",channel:'',memo:''},
+ {id:'CAM-050',name:"Cap56",area:"ถนนทางเดิน",channel:'',memo:''}
 ];
 let db=loadDb(),editingCameraId=null,checkingCameraId=null;
 const $=id=>document.getElementById(id);
@@ -161,7 +203,7 @@ async function initPatrolIdentity(){
  authSubscription=subscription.data?.subscription||null;
 }
 
-function loadDb(){try{const raw=localStorage.getItem(STORAGE_KEY);if(raw){const parsed=JSON.parse(raw);if(parsed&&Array.isArray(parsed.cameras)&&parsed.inspections&&typeof parsed.inspections==='object')return parsed;}}catch(e){console.warn('Local data read failed',e)}return {cameras:demoCameras,inspections:{},inspector:''};}
+function loadDb(){try{const raw=localStorage.getItem(STORAGE_KEY);if(raw){const parsed=JSON.parse(raw);if(parsed&&Array.isArray(parsed.cameras)&&parsed.inspections&&typeof parsed.inspections==='object'){const standardIds=new Set(demoCameras.map(c=>c.id));const extra=parsed.cameras.filter(c=>!standardIds.has(c.id));parsed.cameras=[...demoCameras,...extra];return parsed;}}}catch(e){console.warn('Local data read failed',e)}return {cameras:demoCameras,inspections:{},inspector:''};}
 function saveDb(){try{localStorage.setItem(STORAGE_KEY,JSON.stringify(db));return true;}catch(e){toast('บันทึกไม่สำเร็จ พื้นที่จัดเก็บ Browser อาจเต็ม');return false;}}
 function today(){const d=new Date();return [d.getFullYear(),String(d.getMonth()+1).padStart(2,'0'),String(d.getDate()).padStart(2,'0')].join('-');}
 function escapeHtml(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
@@ -175,7 +217,7 @@ function updateStats(){const c=counts();$('statTotal').textContent=c.total;$('st
 function refreshAreaFilter(){const filter=$('areaFilter'),old=filter.value;const areas=[...new Set(db.cameras.map(c=>c.area).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'th'));filter.innerHTML='<option value="">ทุกพื้นที่</option>'+areas.map(a=>'<option value="'+escapeHtml(a)+'">'+escapeHtml(a)+'</option>').join('');if(areas.includes(old))filter.value=old;}
 function renderCameras(){
  refreshAreaFilter();const q=$('cameraSearch').value.trim().toLowerCase(),area=$('areaFilter').value,status=$('statusFilter').value,date=currentDate();
- const filtered=db.cameras.filter(c=>{const r=getRecord(date,c.id),st=getStatus(r),text=(c.id+' '+c.name+' '+c.area+' '+c.channel).toLowerCase();return (!q||text.includes(q))&&(!area||c.area===area)&&(!status||st===status);}).sort((a,b)=>a.area.localeCompare(b.area,'th')||a.id.localeCompare(b.id));
+ const filtered=db.cameras.filter(c=>{const r=getRecord(date,c.id),st=getStatus(r),text=(c.id+' '+c.name+' '+c.area+' '+c.channel).toLowerCase();return (!q||text.includes(q))&&(!area||c.area===area)&&(!status||st===status);}).sort((a,b)=>a.id.localeCompare(b.id,undefined,{numeric:true}) );
  $('cameraList').innerHTML=filtered.length?filtered.map(c=>{const r=getRecord(date,c.id),st=getStatus(r),done=CHECKS.filter(k=>['pass','fail','na'].includes(r?.checks?.[k.key])).length,issues=CHECKS.filter(k=>r?.checks?.[k.key]==='fail').length;return `<article class="camera-card"><div class="camera-card-top"><div class="camera-icon">📷</div><div class="camera-main"><div class="camera-id">${escapeHtml(c.id)} ${c.channel?'· '+escapeHtml(c.channel):''}</div><div class="camera-name">${escapeHtml(c.name)}</div><div class="camera-area">${escapeHtml(c.area)}${c.memo?' · '+escapeHtml(c.memo):''}</div></div><span class="status ${st}">${statusText(st)}</span></div><div class="progress"><i style="width:${done/CHECKS.length*100}%"></i></div><div class="card-meta"><span>ตรวจแล้ว ${done}/${CHECKS.length} หัวข้อ${issues?' · ไม่ผ่าน '+issues+' หัวข้อ':''}</span><span>${r?.inspector?escapeHtml(r.inspector):'ยังไม่มีผู้ตรวจ'}</span></div><div class="card-actions"><button class="btn small" data-action="check" data-id="${escapeHtml(c.id)}">บันทึกผลตรวจ</button><button class="btn secondary small" data-action="edit" data-id="${escapeHtml(c.id)}">แก้ทะเบียน</button></div></article>`;}).join(''):'<div class="empty" style="grid-column:1/-1">ไม่พบกล้องตามเงื่อนไขที่เลือก</div>';
  updateStats();
 }
