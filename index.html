@@ -68,8 +68,9 @@ body.pdf-export .system-section.print-page-break{break-before:page!important;pag
 body.pdf-export .report-card,body.pdf-export .round-block,body.pdf-export .detail-table tr{break-inside:avoid!important;page-break-inside:avoid!important}
 body.pdf-export #logbookDetailRows tr[data-category="patrol"],body.pdf-export #logbookDetailRows tr[data-category="contractor"]{display:none!important}
 body.pdf-export .patrol-signoff{display:block!important}
-/* Daily PDF: retain Logbook report summary and approved report entries; hide charts and empty Patrol reporter sign-off. */
-body.pdf-export #summaryCharts,body.pdf-export #patrolSignoff{display:none!important}
+/* Daily PDF: hide charts but keep the signed-in staff reporter visible. */
+body.pdf-export #summaryCharts{display:none!important}
+body.pdf-export #patrolSignoff{display:block!important;margin-top:12px!important;padding-top:8px!important;break-inside:avoid!important;page-break-inside:avoid!important}
 body.pdf-export #logbookTableContent .table-wrap{overflow:visible!important;width:100%!important}
 body.pdf-export #logbookTableContent table.detail-table{width:100%!important;min-width:0!important;table-layout:fixed!important;border-collapse:collapse!important;font-size:10px!important;line-height:1.45!important}
 body.pdf-export #logbookTableContent table.detail-table th:nth-child(1),body.pdf-export #logbookTableContent table.detail-table td:nth-child(1){width:7%!important}
@@ -331,6 +332,15 @@ async function loadDailySummary(silent=false){
  try{
   const response=await fetch(SUMMARY_SUPABASE_URL+"/functions/v1/security-daily-summary",{method:"POST",headers:{Authorization:"Bearer "+session.access_token,apikey:SUMMARY_SUPABASE_KEY,"Content-Type":"application/json"},body:JSON.stringify({date:d})});
   const result=await response.json();if(!response.ok)throw new Error(result.error||"ไม่สามารถโหลดข้อมูลได้");
+  // Resolve the report sign-off from the signed-in user's registered patrol profile.
+  const {data:reporterProfile,error:reporterProfileError}=await summaryDb.from("patrol_profiles").select("employee_code,full_name").eq("id",session.user.id).maybeSingle();
+  if(reporterProfileError)console.warn("Reporter profile lookup failed:",reporterProfileError);
+  const reporterCode=String(reporterProfile?.employee_code||session.user.email?.split("@")[0]||"").trim().toUpperCase();
+  const reporterName=String(reporterProfile?.full_name||session.user.user_metadata?.full_name||reporterCode||"ไม่พบชื่อผู้ใช้").trim();
+  result.reporter={employeeCode:reporterCode,fullName:reporterName};
+  document.getElementById("patrolReporterName").textContent=reporterName;
+  document.getElementById("patrolReporterId").textContent=reporterCode?("User ID: "+reporterCode):"Security Department";
+  document.getElementById("summaryStaffLabel").textContent="เข้าสู่ระบบแล้ว: "+reporterCode+" · "+reporterName;
   summaryPayload=result;
   document.getElementById("contractorEntries").textContent=result.contractor.entries;
   document.getElementById("contractorTeam").textContent=result.contractor.teamMembers;
