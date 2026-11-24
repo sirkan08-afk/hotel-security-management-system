@@ -245,10 +245,14 @@ async function summaryLoginNow(){
   const contractorEmail=CONTRACTOR_USER_EMAILS[profile.employee_code];
   if(contractorEmail){
    const {data:oldSession}=await contractorAuthDb.auth.getSession();
-   if(oldSession?.session?.user?.email?.toLowerCase()!==contractorEmail.toLowerCase())await contractorAuthDb.auth.signOut();
-   const {error:contractorError}=await contractorAuthDb.auth.signInWithPassword({email:contractorEmail,password});
-   cReady=!contractorError;
-   if(contractorError)console.warn("Contractor account could not be linked from Portal:",contractorError.message);
+   if(oldSession?.session?.user?.email?.toLowerCase()===contractorEmail.toLowerCase()){
+    cReady=true;
+   }else{
+    if(oldSession?.session)await contractorAuthDb.auth.signOut();
+    const {error:contractorError}=await contractorAuthDb.auth.signInWithPassword({email:contractorEmail,password});
+    cReady=!contractorError;
+    if(contractorError)console.warn("Contractor account could not be linked from Portal:",contractorError.message);
+   }
   }
   document.getElementById("portalPassword").value="";
   portalShowApp(profile,cReady);
