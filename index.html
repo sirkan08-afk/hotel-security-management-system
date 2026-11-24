@@ -218,8 +218,8 @@ function portalShowApp(profile,contractorReady){
  document.getElementById("portalSystemStatus").textContent=contractorAuthReady?"ทุกระบบพร้อมใช้งาน":"Contractor ยังไม่เชื่อมบัญชี";
  document.getElementById("summaryLogin").style.display="none";
  document.getElementById("summarySession").style.display="none";
- document.getElementById("summaryStaffLabel").textContent="เข้าสู่ระบบแล้ว: "+(profile.full_name||profile.employee_code);
- loadDailySummary();
+ // Portal header already displays the signed-in staff identity.
+ setReportPeriod("daily");
  startSummaryAutoRefresh();
 }
 async function portalGetProfile(){
@@ -706,7 +706,7 @@ async function loadMonthlySummary(silent=false){
   if(requestVersion!==summaryLoadVersion)return;
   if(!response.ok)throw new Error(data.error||"ไม่สามารถโหลดรายงานรายเดือนได้");
   monthlyPayload=data;renderMonthlyReport(data);
-  document.getElementById("summaryStaffLabel").textContent="เข้าสู่ระบบแล้ว: "+(data.generatedFor?.employeeCode||"")+" · "+(data.generatedFor?.fullName||"");
+  // Portal header already displays the signed-in staff identity.
   document.getElementById("summaryDatePrint").textContent=monthlyFormatDate(data.range.startDay)+" – "+monthlyFormatDate(monthlyDateBefore(data.range.endDayExclusive));
   document.getElementById("periodRange").textContent=monthlyFormatDate(data.range.startDay)+" 07:00 – "+monthlyFormatDate(data.range.endDayExclusive)+" 06:59";
   button.disabled=false;
