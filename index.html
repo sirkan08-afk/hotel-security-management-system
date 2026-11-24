@@ -121,7 +121,7 @@ body.pdf-export{-webkit-print-color-adjust:exact;print-color-adjust:exact}
 .monthly-table th{background:#f1f5f9;color:#334155;font-weight:700}
 .monthly-table tr{break-inside:avoid;page-break-inside:avoid}
 .monthly-text{white-space:pre-wrap;overflow-wrap:normal;word-break:normal;line-break:loose;max-width:100%;min-width:0}
-.monthly-note{margin-top:8px;padding:8px 10px;background:#f7f9fb;border:1px solid #dbe3eb;border-radius:6px;color:#536579;font-size:9px;line-height:1.6}
+
 .monthly-event{border:1px solid #d6dee8;border-left:3px solid #b91c1c;border-radius:6px;padding:9px 10px;margin:8px 0;break-inside:avoid;page-break-inside:avoid}
 .monthly-event-meta{font-size:10px;color:#475569;margin-bottom:6px;line-height:1.5}
 .monthly-event-detail{font-size:10px;line-height:1.65;white-space:pre-wrap;overflow-wrap:normal;word-break:normal;line-break:loose}
@@ -574,20 +574,20 @@ function renderMonthlyReport(data){
   '</div>'+
   '<section class="monthly-section"><h2>1. ผู้รับเหมาเข้าพื้นที่จริง — Contractor Registration</h2>'+
    '<table class="monthly-table"><thead><tr><th style="width:23%">อาคาร / พื้นที่</th><th style="width:12%">รายการเข้า</th><th style="width:10%">จำนวนวัน</th><th style="width:18%">ทีมงาน* </th><th style="width:37%">วันที่มีการลงทะเบียน</th></tr></thead><tbody>'+actualRows+'</tbody></table>'+
-   '<div class="monthly-note">รวมรายการเข้าพื้นที่ '+(Number(summary.contractorEntries)||0)+' ครั้ง · ทีมงานตามทะเบียน '+(Number(summary.contractorTeamMembers)||0)+' คน · '+(Number(summary.contractorActiveDays)||0)+' วันมีการลงทะเบียน · '+(Number(summary.contractorCompanies)||0)+' บริษัท/ผู้รับเหมา. *ยอดทีมงานแยกพื้นที่นับเฉพาะรายการที่ระบุพื้นที่เดียวเท่านั้น; รายการที่บันทึกหลายอาคารจะนับเป็นการเข้าพื้นที่ในแต่ละอาคารที่ระบุ แต่ไม่นำจำนวนทีมไปกระจายซ้ำ.</div>'+
+
   '</section>'+
   '<section class="monthly-section"><h2>2. พื้นที่และวันทำงานตาม Work Permit</h2>'+
    '<table class="monthly-table"><thead><tr><th style="width:34%">อาคาร / พื้นที่</th><th style="width:16%">จำนวนใบ WP</th><th style="width:14%">วันตามแผน</th><th style="width:36%">วันที่ทำงานตามใบอนุญาต</th></tr></thead><tbody>'+permitAreaRows+'</tbody></table>'+
    '<h3>รายการใบอนุญาตที่มีช่วงงานทับซ้อนกับเดือนนี้</h3>'+
    '<table class="monthly-table"><thead><tr><th style="width:14%">WP No.</th><th style="width:26%">บริษัท / งาน</th><th style="width:20%">พื้นที่ตามใบอนุญาต</th><th style="width:15%">ช่วงวันที่</th><th style="width:8%">วันในเดือน</th><th style="width:7%">ทีม</th><th style="width:10%">สถานะ</th></tr></thead><tbody>'+ (permitRows||'<tr><td colspan="7">ไม่มีรายการ</td></tr>') +'</tbody></table>'+
-   '<div class="monthly-note">Work Permit คือสถานที่และช่วงเวลาที่ระบุในใบอนุญาต ไม่ถือเป็นหลักฐานยืนยันว่าเข้าพื้นที่จริง และไม่นำยอด Work Permit ไปรวมกับยอดลงทะเบียน Contractor.</div>'+
+
   '</section>'+
   '<section class="monthly-section"><h2>3. บันทึก Logbook ที่เข้าข่ายผิดปกติ</h2>'+
    '<table class="monthly-table"><thead><tr><th style="width:6%">ลำดับ</th><th style="width:15%">วันที่</th><th style="width:10%">เวลา</th><th style="width:19%">ผู้รายงาน</th><th style="width:50%">เหตุการณ์ / สิ่งที่บันทึกว่าเกิดขึ้น</th></tr></thead><tbody>'+ (eventRows||'<tr><td colspan="5" class="monthly-empty">ไม่พบรายการ Logbook ที่เข้าข่ายผิดปกติในเดือนนี้</td></tr>') +'</tbody></table>'+
-   '<div class="monthly-note">คัดเฉพาะข้อความที่กำหนดประเภทเป็นเหตุการณ์ผิดปกติ หรือระบุเหตุ/ความเสียหาย/อุบัติเหตุ; หนึ่งแถวเท่ากับหนึ่งข้อความ Logbook และหลายข้อความอาจเป็นการรายงานหรืออัปเดตเหตุการณ์เดียวกัน. ผู้รายงานคือชื่อผู้ส่งข้อความใน LINE; รายละเอียดอิงข้อความต้นฉบับ ไม่อนุมานผู้กระทำเพิ่มเติม.</div>'+
+
   '</section>'+
   '<div class="monthly-signoff"><b>ผู้จัดทำรายงาน</b><br>'+txt(reporter.fullName||"ไม่ระบุชื่อ")+'<br>'+txt(reporter.employeeCode||"")+' · '+txt(reporter.title||"Security Staff")+'</div>'+
-  '<div class="monthly-note">แหล่งข้อมูล: ฐานข้อมูล Contractor Registration, Work Permit และ Security Logbook · สร้างรายงานเมื่อ '+new Date(data.generatedAt).toLocaleString("th-TH",{timeZone:"Asia/Bangkok"})+'</div>'+
+
  '</div>';
 }
 async function loadMonthlySummary(silent=false){
