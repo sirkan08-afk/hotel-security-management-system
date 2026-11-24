@@ -519,7 +519,7 @@ function renderMonthlyReport(data){
  const actual=new Map();
  (data.contractorEntries||[]).forEach(row=>{
   const location=String(row.work_location||"").trim()||"ไม่ระบุพื้นที่";
-  const areas=monthlyAreaNames(location),day=String(row.work_date||"");
+  const areas=monthlyAreaNames(location),day=String(row.operational_date||row.work_date||"");
   areas.forEach(area=>{
    if(!actual.has(area))actual.set(area,{area,records:0,days:new Set(),companies:new Set(),singleAreaTeam:0,singleAreaEntries:0,multiAreaEntries:0,sourceLocations:new Set()});
    const item=actual.get(area);item.records++;if(day)item.days.add(day);
@@ -570,7 +570,7 @@ function renderMonthlyReport(data){
    '<div class="monthly-kpi"><span>รายการ Contractor เข้าพื้นที่</span><b>'+ (Number(summary.contractorEntries)||0).toLocaleString("th-TH") +'</b></div>'+
    '<div class="monthly-kpi"><span>จำนวนทีมงานตามทะเบียน</span><b>'+ (Number(summary.contractorTeamMembers)||0).toLocaleString("th-TH") +'</b></div>'+
    '<div class="monthly-kpi"><span>Work Permit ในช่วงเดือน</span><b>'+ (Number(summary.workPermits)||0).toLocaleString("th-TH") +'</b></div>'+
-   '<div class="monthly-kpi"><span>เหตุการณ์ผิดปกติใน Logbook</span><b>'+ (Number(summary.abnormalIncidents)||0).toLocaleString("th-TH") +'</b></div>'+
+   '<div class="monthly-kpi"><span>บันทึก Logbook ที่เข้าข่ายผิดปกติ</span><b>'+ (Number(summary.abnormalIncidents)||0).toLocaleString("th-TH") +'</b></div>'+
   '</div>'+
   '<section class="monthly-section"><h2>1. ผู้รับเหมาเข้าพื้นที่จริง — Contractor Registration</h2>'+
    '<table class="monthly-table"><thead><tr><th style="width:23%">อาคาร / พื้นที่</th><th style="width:12%">รายการเข้า</th><th style="width:10%">จำนวนวัน</th><th style="width:18%">ทีมงาน* </th><th style="width:37%">วันที่มีการลงทะเบียน</th></tr></thead><tbody>'+actualRows+'</tbody></table>'+
@@ -612,7 +612,7 @@ async function loadMonthlySummary(silent=false){
   document.getElementById("summaryDatePrint").textContent=monthlyFormatDate(data.range.startDay)+" – "+monthlyFormatDate(monthlyDateBefore(data.range.endDayExclusive));
   document.getElementById("periodRange").textContent=monthlyFormatDate(data.range.startDay)+" 07:00 – "+monthlyFormatDate(data.range.endDayExclusive)+" 06:59";
   button.disabled=false;
-  status.textContent="ข้อมูลรายเดือน "+data.month+" · Contractor "+data.summary.contractorEntries+" รายการ · Work Permit "+data.summary.workPermits+" ใบ · เหตุการณ์ผิดปกติ "+data.summary.abnormalIncidents+" รายการ · อัปเดต "+new Date(data.generatedAt).toLocaleString("th-TH",{timeZone:"Asia/Bangkok"});
+  status.textContent="ข้อมูลรายเดือน "+data.month+" · Contractor "+data.summary.contractorEntries+" รายการ · Work Permit "+data.summary.workPermits+" ใบ · บันทึก Logbook ผิดปกติ "+data.summary.abnormalIncidents+" รายการ · อัปเดต "+new Date(data.generatedAt).toLocaleString("th-TH",{timeZone:"Asia/Bangkok"});
  }catch(error){
   monthlyPayload=null;button.disabled=true;document.getElementById("monthlyReport").innerHTML="";
   status.textContent="โหลดรายงานรายเดือนไม่สำเร็จ: "+error.message;
@@ -631,7 +631,7 @@ async function exportMonthlySummaryPdf(){
    margin:[10,10,12,10],
    filename:"Security-Monthly-Summary-"+monthlyPayload.month+".pdf",
    image:{type:"jpeg",quality:0.98},
-   html2canvas:{scale:2,useCORS:true,backgroundColor:"#ffffff",logging:false,letterRendering:true},
+   html2canvas:{scale:2,useCORS:true,backgroundColor:"#ffffff",logging:false,letterRendering:false},
    jsPDF:{unit:"mm",format:"a4",orientation:"portrait"},
    pagebreak:{mode:["css","legacy"],avoid:[".monthly-kpi",".monthly-table tr",".monthly-event"]}
   }).from(report).save();
