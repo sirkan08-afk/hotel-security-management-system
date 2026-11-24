@@ -486,7 +486,7 @@ async function loadDailySummary(silent=false){
   result.reporter={employeeCode:reporterCode,fullName:reporterName,title:reporterTitle};
   document.getElementById("patrolReporterName").textContent=reporterName;
   document.getElementById("patrolReporterId").textContent=reporterTitle;
-  document.getElementById("summaryStaffLabel").textContent="เข้าสู่ระบบแล้ว: "+reporterCode+" · "+reporterName;
+  // Portal header already displays the authenticated user name and employee code.
   summaryPayload=result;
   document.getElementById("contractorEntries").textContent=result.contractor.entries;
   document.getElementById("contractorTeam").textContent=result.contractor.teamMembers;
