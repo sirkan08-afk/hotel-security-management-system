@@ -133,8 +133,8 @@ body.monthly-pdf-export #monthlyReport{display:block!important;width:100%!import
 body.monthly-pdf-export .monthly-report{padding:0!important}
 body.monthly-pdf-export .monthly-table th,body.monthly-pdf-export .monthly-table td{overflow-wrap:normal!important;word-break:normal!important;line-break:loose!important}
 </style>
-</head><body>
-<div class="app"><aside class="side">
+</head><body><style>.portal-login-screen{position:fixed;inset:0;z-index:99999;display:grid;place-items:center;padding:20px;background:linear-gradient(135deg,#0b1b2c,#1d4668)}.portal-login-card{width:min(100%,430px);background:#fff;border-radius:18px;padding:30px;box-shadow:0 22px 60px #0004;display:grid;gap:12px}.portal-login-mark{font-size:11px;font-weight:800;letter-spacing:2px;color:#1d4668}.portal-login-card h1{font-size:23px;margin:0;color:#10243a}.portal-login-card p{font-size:13px;line-height:1.6;color:#64748b;margin:0 0 5px}.portal-login-card label{font-size:12px;font-weight:700;color:#334155}.portal-login-card input{width:100%;padding:13px;border:1px solid #cbd5e1;border-radius:9px;font:inherit}.portal-login-card button{margin-top:5px}.portal-login-card button:disabled{opacity:.6;cursor:wait}#portalLoginStatus{min-height:20px;font-size:12px;color:#b45309;line-height:1.5}.portal-userbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap}.portal-userbar #portalUserLabel{font-size:12px;font-weight:700;color:#334155}.portal-system-status{font-size:10px;color:#b45309}.portal-userbar .open{padding:8px 12px}@media(max-width:850px){.portal-userbar{gap:5px}.portal-userbar #portalUserLabel{font-size:10px}.portal-userbar .open{padding:6px 8px;font-size:11px}}.portal-login-screen[hidden]{display:none!important}</style>
+<section id="portalLoginScreen" class="portal-login-screen"><form class="portal-login-card" onsubmit="event.preventDefault();summaryLoginNow()"><div class="portal-login-mark">SECURITY PORTAL</div><h1>เข้าสู่ระบบ Security Department</h1><p>ใช้ User ID และ Password ชุดเดียว เพื่อเข้าใช้งานระบบทั้งหมดผ่าน Portal</p><label for="portalUserId">User ID</label><input id="portalUserId" autocomplete="username" autocapitalize="characters" placeholder="เช่น ADMIN001 หรือ SEC002" required><label for="portalPassword">Password</label><input id="portalPassword" type="password" autocomplete="current-password" placeholder="รหัสผ่าน" required><button id="portalLoginButton" class="open" type="submit">เข้าสู่ระบบ</button><div id="portalLoginStatus" role="status"></div></form></section><div class="app" id="portalApp" style="display:none"><aside class="side">
 <div class="brand"><b>HOTEL SECURITY</b><small>MANAGEMENT SYSTEM</small></div>
 <div class="navlabel">MAIN MENU</div>
 <nav>
@@ -148,14 +148,14 @@ body.monthly-pdf-export .monthly-table th,body.monthly-pdf-export .monthly-table
 </nav>
 <div class="foot">SECURITY DEPARTMENT<br>Central access portal · v1.1</div>
 </aside><main class="main">
-<header class="top"><b>Hotel Security Management System</b><small>SECURITY DEPARTMENT</small></header>
+<header class="top"><div><b>Hotel Security Management System</b><small>SECURITY DEPARTMENT</small></div><div class="portal-userbar"><span id="portalUserLabel">ยังไม่ได้เข้าสู่ระบบ</span><span id="portalSystemStatus" class="portal-system-status"></span><button class="open" type="button" onclick="portalLogout()">ออกจากระบบ</button></div></header>
 <section class="content" id="home">
 <section class="overview-report" id="reportPage">
 <div class="summary-heading"><div class="summary-brand"><img src="./1795254077344.jpg" alt="Khao Chi Chan Pattaya logo"><h1 id="summaryTitle">Security Reports</h1></div><div class="summary-date-area"><label for="summaryDate" class="summary-date-label" id="summaryDateLabel">วันที่อ้างอิง</label><input type="date" id="summaryDate"><span id="summaryDatePrint" class="summary-date-print"></span></div></div>
 <div class="report-toolbar period-toolbar"><strong>ประเภทรายงาน</strong><button class="open period-btn active" data-period="daily" onclick="setReportPeriod('daily')">Daily</button><button class="open period-btn" data-period="weekly" onclick="setReportPeriod('weekly')">Weekly</button><button class="open period-btn" data-period="monthly" onclick="setReportPeriod('monthly')">Monthly</button><span id="periodRange" style="font-size:12px;color:#64748b"></span></div>
 <div class="report-toolbar"><button class="open" onclick="loadDailySummary()">อัปเดตข้อมูลล่าสุด</button><button class="open" id="summaryPdfBtn" onclick="exportSummaryPdf()" disabled>Export PDF</button><button class="open" id="monthlyPdfBtn" onclick="exportMonthlySummaryPdf()" style="display:none" disabled>ดาวน์โหลด PDF รายเดือน</button><button class="open" id="summaryCsvBtn" onclick="exportSummaryCsv()" disabled>Export Excel (CSV)</button></div>
-<div class="report-toolbar" id="summaryLogin"><label for="summaryUser">User ID</label><input id="summaryUser" placeholder="เช่น SEC001 หรือ ADMIN001" autocomplete="username"><label for="summaryPassword">Password</label><input id="summaryPassword" type="password" placeholder="รหัสผ่าน" autocomplete="current-password"><button class="open" onclick="summaryLoginNow()">เข้าสู่ระบบเจ้าหน้าที่</button><span id="summaryAuthStatus" class="sub" style="margin:0"></span></div>
-<div class="report-toolbar" id="summarySession" style="display:none"><span id="summaryStaffLabel"></span><button class="open" onclick="summaryLogout()">ออกจากระบบ</button></div>
+<div class="report-toolbar" id="summaryLogin" style="display:none"></div>
+<div class="report-toolbar" id="summarySession" style="display:none"></div>
 <section class="detail-section" id="summaryCharts" style="margin-bottom:14px">
  <h2 style="font-size:16px;margin:0 0 12px">กราฟสรุปผลการดำเนินงาน</h2>
  <div class="chart-panel"><h3>จำนวนรายการแยกตามระบบ</h3><div id="categoryChart" class="bar-chart" aria-label="กราฟจำนวนรายการแยกตามระบบ"></div></div>
@@ -196,31 +196,107 @@ const summaryDb=window.supabase?.createClient(SUMMARY_SUPABASE_URL,SUMMARY_SUPAB
 let summaryPayload=null;
 let monthlyPayload=null;
 let summaryRefreshTimer=null;
-function startSummaryAutoRefresh(){if(summaryRefreshTimer)clearInterval(summaryRefreshTimer);summaryRefreshTimer=setInterval(()=>{if(summaryDb)summaryDb.auth.getSession().then(({data})=>{if(data.session)loadDailySummary(true)})},15000)}
-async function summaryLoginNow(){
- const user=document.getElementById("summaryUser").value.trim().replace(/@patrol\.com$/i,"");
- const password=document.getElementById("summaryPassword").value;
- const status=document.getElementById("summaryAuthStatus");
- if(!summaryDb){status.textContent="โหลดระบบเข้าสู่ระบบไม่สำเร็จ";return}
- if(!user||!password){status.textContent="กรุณากรอก User ID และ Password";return}
- status.textContent="กำลังตรวจสอบบัญชี...";
- const {data,error}=await summaryDb.auth.signInWithPassword({email:user.toLowerCase()+"@patrol.com",password});
- if(error){status.textContent="เข้าสู่ระบบไม่สำเร็จ: "+error.message;return}
+let portalUserProfile=null;
+let contractorAuthReady=false;
+const CONTRACTOR_SUPABASE_URL="https://aclsqitjruccxkzjtxbl.supabase.co";
+const CONTRACTOR_SUPABASE_KEY="sb_publishable_46ffZxy1L4lJQv_Kgzmuzg_V97pFTuN";
+const CONTRACTOR_USER_EMAILS={ADMIN001:"admin001@contractor.local",SEC001:"sec001@contractor.local",SEC002:"sec002@contractor.local",SEC003:"sec003@contractor.local"};
+const contractorAuthDb=window.supabase?.createClient(CONTRACTOR_SUPABASE_URL,CONTRACTOR_SUPABASE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:false}});
+function startSummaryAutoRefresh(){if(summaryRefreshTimer)clearInterval(summaryRefreshTimer);summaryRefreshTimer=setInterval(()=>{if(summaryDb)summaryDb.auth.getSession().then(({data})=>{if(data.session)loadDailySummary(true);else portalLogout()})},15000)}
+function portalShowLogin(message=""){
+ const overlay=document.getElementById("portalLoginScreen"),app=document.getElementById("portalApp");
+ if(overlay)overlay.style.display="grid";
+ if(app)app.style.display="none";
+ const status=document.getElementById("portalLoginStatus");if(status&&message)status.textContent=message;
+}
+function portalShowApp(profile,contractorReady){
+ portalUserProfile=profile;contractorAuthReady=!!contractorReady;
+ document.getElementById("portalLoginScreen").style.display="none";
+ document.getElementById("portalApp").style.display="grid";
+ document.getElementById("portalUserLabel").textContent=(profile.full_name||profile.employee_code||"เจ้าหน้าที่")+" · "+(profile.employee_code||"");
+ document.getElementById("portalSystemStatus").textContent=contractorAuthReady?"ทุกระบบพร้อมใช้งาน":"Contractor ยังไม่เชื่อมบัญชี";
  document.getElementById("summaryLogin").style.display="none";
- document.getElementById("summarySession").style.display="flex";
- document.getElementById("summaryStaffLabel").textContent="เข้าสู่ระบบแล้ว: "+user.toUpperCase();
- status.textContent="เข้าสู่ระบบสำเร็จ";
- await loadDailySummary();
+ document.getElementById("summarySession").style.display="none";
+ document.getElementById("summaryStaffLabel").textContent="เข้าสู่ระบบแล้ว: "+(profile.full_name||profile.employee_code);
+ loadDailySummary();
  startSummaryAutoRefresh();
 }
-async function summaryLogout(){
- monthlyPayload=null;document.getElementById("monthlyPdfBtn").disabled=true;
- if(summaryRefreshTimer){clearInterval(summaryRefreshTimer);summaryRefreshTimer=null;}await summaryDb?.auth.signOut();summaryPayload=null;
- document.getElementById("summarySession").style.display="none";
- document.getElementById("summaryLogin").style.display="flex";
- document.getElementById("summaryAuthStatus").textContent="ออกจากระบบแล้ว";
- document.getElementById("summaryPdfBtn").disabled=true;document.getElementById("summaryCsvBtn").disabled=true;
+async function portalGetProfile(){
+ const {data:{user},error:userError}=await summaryDb.auth.getUser();
+ if(userError||!user)throw new Error("ตรวจสอบบัญชีเจ้าหน้าที่ไม่สำเร็จ");
+ const {data:profile,error}=await summaryDb.from("patrol_profiles").select("employee_code,full_name,role").eq("id",user.id).single();
+ if(error||!profile)throw new Error("ไม่พบโปรไฟล์ในระบบ Patrol กรุณาติดต่อผู้ดูแลระบบ");
+ return profile;
 }
+async function summaryLoginNow(){
+ const user=document.getElementById("portalUserId").value.trim().toUpperCase().replace(/@PATROL\.COM$/i,"");
+ const password=document.getElementById("portalPassword").value;
+ const status=document.getElementById("portalLoginStatus");
+ const button=document.getElementById("portalLoginButton");
+ if(!summaryDb||!contractorAuthDb){status.textContent="โหลดระบบเข้าสู่ระบบไม่สำเร็จ กรุณารีเฟรชหน้าเว็บ";return}
+ if(!user||!password){status.textContent="กรุณากรอก User ID และ Password";return}
+ button.disabled=true;button.textContent="กำลังเข้าสู่ระบบ...";status.textContent="กำลังตรวจสอบบัญชี Security...";
+ try{
+  const {error}=await summaryDb.auth.signInWithPassword({email:user.toLowerCase()+"@patrol.com",password});
+  if(error)throw error;
+  let profile;
+  try{profile=await portalGetProfile();}catch(profileError){await summaryDb.auth.signOut();throw profileError;}
+  let cReady=false;
+  const contractorEmail=CONTRACTOR_USER_EMAILS[profile.employee_code];
+  if(contractorEmail){
+   const {data:oldSession}=await contractorAuthDb.auth.getSession();
+   if(oldSession?.session?.user?.email?.toLowerCase()!==contractorEmail.toLowerCase())await contractorAuthDb.auth.signOut();
+   const {error:contractorError}=await contractorAuthDb.auth.signInWithPassword({email:contractorEmail,password});
+   cReady=!contractorError;
+   if(contractorError)console.warn("Contractor account could not be linked from Portal:",contractorError.message);
+  }
+  document.getElementById("portalPassword").value="";
+  portalShowApp(profile,cReady);
+  if(!cReady)document.getElementById("portalSystemStatus").title="บัญชี Contractor ในระบบแยกยังยืนยันด้วยรหัสผ่านนี้ไม่ได้";
+ }catch(error){
+  status.textContent="เข้าสู่ระบบไม่สำเร็จ: "+(error?.message||"กรุณาตรวจสอบ User ID และ Password");
+ }finally{
+  button.disabled=false;button.textContent="เข้าสู่ระบบ";
+ }
+}
+async function portalRestoreSession(){
+ try{
+  const {data,error}=await summaryDb.auth.getSession();
+  if(error)throw error;
+  if(!data.session){portalShowLogin();return}
+  const profile=await portalGetProfile();
+  const expected=CONTRACTOR_USER_EMAILS[profile.employee_code];
+  const {data:cData}=await contractorAuthDb.auth.getSession();
+  const cReady=!!(expected&&cData?.session?.user?.email?.toLowerCase()===expected.toLowerCase());
+  if(cData?.session&&!cReady)await contractorAuthDb.auth.signOut();
+  portalShowApp(profile,cReady);
+ }catch(error){
+  console.error("Portal session restore failed:",error);
+  portalShowLogin("ตรวจสอบเซสชันไม่สำเร็จ กรุณาเข้าสู่ระบบใหม่");
+ }
+}
+async function portalLogout(){
+ if(summaryRefreshTimer){clearInterval(summaryRefreshTimer);summaryRefreshTimer=null;}
+ monthlyPayload=null;summaryPayload=null;portalUserProfile=null;contractorAuthReady=false;
+ document.getElementById("monthlyPdfBtn").disabled=true;
+ document.getElementById("summaryPdfBtn").disabled=true;
+ document.getElementById("summaryCsvBtn").disabled=true;
+ const frame=document.getElementById("appFrame");if(frame)frame.src="about:blank";
+ document.getElementById("workspace").classList.remove("visible");
+ document.getElementById("home").style.display="block";
+ try{await contractorAuthDb?.auth.signOut();}catch(e){console.warn("Contractor sign-out:",e)}
+ try{await summaryDb?.auth.signOut();}catch(e){console.warn("Security sign-out:",e)}
+ document.getElementById("portalPassword").value="";
+ document.getElementById("portalLoginStatus").textContent="ออกจากระบบเรียบร้อยแล้ว";
+ document.getElementById("portalUserLabel").textContent="ยังไม่ได้เข้าสู่ระบบ";
+ document.getElementById("portalSystemStatus").textContent="";
+ portalShowLogin();
+}
+async function summaryLogout(){await portalLogout()}
+window.addEventListener("message",event=>{
+ if(event.origin===location.origin&&event.data?.type==="PORTAL_REQUEST_LOGOUT")portalLogout();
+});
+window.addEventListener("DOMContentLoaded",portalRestoreSession);
 
 function toggleSummaryTable(id,button){
  const panel=document.getElementById(id);
@@ -647,8 +723,8 @@ function exportSummaryCsv(){
  const csv="\uFEFF"+rows.map(row=>row.map(v=>'"'+String(v??"").replace(/"/g,'""')+'"').join(",")).join("\r\n");
  const url=URL.createObjectURL(new Blob([csv],{type:"text/csv;charset=utf-8"})),a=document.createElement("a");a.href=url;a.download="Security-Daily-Summary-"+p.date+".csv";a.click();URL.revokeObjectURL(url);
 }
-function openApp(key){const app=apps[key];if(!app)return;document.getElementById("home").style.display="none";document.getElementById("workspace").classList.add("visible");document.getElementById("appTitle").textContent=app.title;document.getElementById("newTab").href=app.url;const frame=document.getElementById("appFrame");if(frame.src!==app.url)frame.src=app.url;setActive(key==="contractor"?"contractorNav":key==="work"?"workNav":key==="logbook"?"logbookNav":key==="cctv"?"cctvNav":"patrolNav")}
-function showHome(){document.getElementById("workspace").classList.remove("visible");document.getElementById("home").style.display="block";setActive("homeNav")}
+function openApp(key){const app=apps[key];if(!app)return;if(!portalUserProfile){portalShowLogin("กรุณาเข้าสู่ระบบจาก Portal ก่อน");return}if(key==="contractor"&&!contractorAuthReady){alert("บัญชี Contractor ของผู้ใช้นี้ยังไม่สามารถเชื่อมต่ออัตโนมัติได้ กรุณาให้ผู้ดูแลตรวจสอบบัญชีใน Contractor Registration");return}document.getElementById("home").style.display="none";document.getElementById("workspace").classList.add("visible");document.getElementById("appTitle").textContent=app.title;document.getElementById("newTab").href=app.url;const frame=document.getElementById("appFrame");if(frame.src!==app.url)frame.src=app.url;setActive(key==="contractor"?"contractorNav":key==="work"?"workNav":key==="logbook"?"logbookNav":key==="cctv"?"cctvNav":"patrolNav")}
+function showHome(){if(!portalUserProfile){portalShowLogin();return}document.getElementById("workspace").classList.remove("visible");document.getElementById("home").style.display="block";setActive("homeNav")}
 function updateSummaryPrintDate(){const value=document.getElementById("summaryDate").value;const el=document.getElementById("summaryDatePrint");if(el&&value){const [y,m,d]=value.split("-");el.textContent=d+"/"+m+"/"+y.slice(-2)}}
 (function(){const d=new Date();const bangkok=new Date(d.toLocaleString("en-US",{timeZone:"Asia/Bangkok"}));document.getElementById("summaryDate").value=[bangkok.getFullYear(),String(bangkok.getMonth()+1).padStart(2,"0"),String(bangkok.getDate()).padStart(2,"0")].join("-");updateSummaryPrintDate();document.getElementById("summaryDate").addEventListener("change",()=>{updateSummaryPrintDate();loadDailySummary()})})();
 if("serviceWorker" in navigator){window.addEventListener("load",()=>navigator.serviceWorker.register("./service-worker.js",{updateViaCache:"none"}).then(reg=>reg.update()).catch(err=>console.warn("PWA service worker:",err)));}
