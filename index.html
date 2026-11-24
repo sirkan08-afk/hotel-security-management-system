@@ -332,14 +332,14 @@ async function loadDailySummary(silent=false){
  try{
   const response=await fetch(SUMMARY_SUPABASE_URL+"/functions/v1/security-daily-summary",{method:"POST",headers:{Authorization:"Bearer "+session.access_token,apikey:SUMMARY_SUPABASE_KEY,"Content-Type":"application/json"},body:JSON.stringify({date:d})});
   const result=await response.json();if(!response.ok)throw new Error(result.error||"ไม่สามารถโหลดข้อมูลได้");
-  // Resolve the report sign-off from the signed-in user's registered patrol profile.
-  const {data:reporterProfile,error:reporterProfileError}=await summaryDb.from("patrol_profiles").select("employee_code,full_name").eq("id",session.user.id).maybeSingle();
-  if(reporterProfileError)console.warn("Reporter profile lookup failed:",reporterProfileError);
-  const reporterCode=String(reporterProfile?.employee_code||session.user.email?.split("@")[0]||"").trim().toUpperCase();
-  const reporterName=String(reporterProfile?.full_name||session.user.user_metadata?.full_name||reporterCode||"ไม่พบชื่อผู้ใช้").trim();
-  result.reporter={employeeCode:reporterCode,fullName:reporterName};
+  // Reporter identity is resolved by the authenticated Edge Function via service-role access.
+  const reporter=result.reporter||{};
+  const reporterCode=String(reporter.employeeCode||session.user.email?.split("@")[0]||"").trim().toUpperCase();
+  const reporterName=String(reporter.fullName||session.user.user_metadata?.full_name||reporterCode||"Security Staff").trim();
+  const reporterTitle=String(reporter.title||(reporterCode==="SEC001"||reporterCode==="SEC002"?"Security Supervisor":"Security Staff"));
+  result.reporter={employeeCode:reporterCode,fullName:reporterName,title:reporterTitle};
   document.getElementById("patrolReporterName").textContent=reporterName;
-  document.getElementById("patrolReporterId").textContent=reporterCode?("User ID: "+reporterCode):"Security Department";
+  document.getElementById("patrolReporterId").textContent=reporterTitle;
   document.getElementById("summaryStaffLabel").textContent="เข้าสู่ระบบแล้ว: "+reporterCode+" · "+reporterName;
   summaryPayload=result;
   document.getElementById("contractorEntries").textContent=result.contractor.entries;
