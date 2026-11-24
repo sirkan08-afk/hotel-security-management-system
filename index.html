@@ -195,7 +195,7 @@ function toggleSummaryTable(id,button){
  if(hint){const chevron=hint.querySelector(".collapse-chevron");hint.firstChild.textContent=willOpen?"กดเพื่อซ่อน ":"กดเพื่อดูตาราง ";if(chevron)hint.appendChild(chevron);}
 }
 function logbookMessageHtml(value,escapeHtml){
- const source=String(value??"").replace(/\\r\\n?/g,"\\n").replace(/[\\t ]+/g," ");
+ const source=String(value??"").replace(/\r\n?/g,"\n").replace(/[\t ]+/g," ");
  if(typeof Intl==="undefined"||typeof Intl.Segmenter!=="function")return escapeHtml(source);
  try{
   const words=new Intl.Segmenter("th",{granularity:"word"});
@@ -203,7 +203,7 @@ function logbookMessageHtml(value,escapeHtml){
   let html="";
   for(const part of words.segment(source)){
    const token=part.segment;
-   if(/^\\s+$/u.test(token)){html+=escapeHtml(token);continue}
+   if(/^\s+$/u.test(token)){html+=escapeHtml(token);continue}
    const chars=Array.from(graphemes.segment(token),item=>item.segment);
    if(chars.length>28){
     for(let i=0;i<chars.length;i+=18){
