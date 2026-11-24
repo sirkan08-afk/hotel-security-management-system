@@ -196,6 +196,7 @@ const summaryDb=window.supabase?.createClient(SUMMARY_SUPABASE_URL,SUMMARY_SUPAB
 let summaryPayload=null;
 let monthlyPayload=null;
 let summaryRefreshTimer=null;
+let summaryLoadVersion=0;
 let portalUserProfile=null;
 let contractorAuthReady=false;
 const CONTRACTOR_SUPABASE_URL="https://aclsqitjruccxkzjtxbl.supabase.co";
@@ -360,6 +361,7 @@ function reportDateRange(anchor,period){
  const endExclusive=new Date(end);endExclusive.setUTCDate(end.getUTCDate()+1);return {start:isoDate(start),end:isoDate(end),endExclusive:isoDate(endExclusive),dates};
 }
 function setReportPeriod(period){
+ summaryLoadVersion++;
  reportPeriod=period;
  document.querySelectorAll(".period-btn").forEach(b=>b.classList.toggle("active",b.dataset.period===period));
  const daily=period==="daily",weekly=period==="weekly",monthly=period==="monthly";
@@ -400,9 +402,12 @@ function summaryCategoryValues(totals){
  ];
 }
 async function loadPeriodSummary(silent=false){
+ const requestVersion=++summaryLoadVersion;
  const anchorDate=document.getElementById("summaryDate").value,status=document.getElementById("summaryStatus");
  if(!anchorDate){status.textContent="กรุณาเลือกวันที่";return}
- const {data:{session}}=await summaryDb.auth.getSession();if(!session){status.textContent="กรุณาเข้าสู่ระบบเจ้าหน้าที่ก่อน";return}
+ const {data:{session}}=await summaryDb.auth.getSession();
+ if(requestVersion!==summaryLoadVersion)return;
+ if(!session){status.textContent="กรุณาเข้าสู่ระบบเจ้าหน้าที่ก่อน";return}
  const range=reportDateRange(anchorDate,reportPeriod);
  if(!silent)status.textContent="กำลังรวบรวมสถิติ "+range.dates.length+" วัน...";
  const headers={Authorization:"Bearer "+session.access_token,apikey:SUMMARY_SUPABASE_KEY,"Content-Type":"application/json"};
@@ -421,8 +426,10 @@ async function loadPeriodSummary(silent=false){
     if(!lr.ok)throw new Error(l.error||"โหลด Logbook ไม่สำเร็จ ("+date+")");
     return {date,summary:s,messages:l.messages||[]};
    }));
+   if(requestVersion!==summaryLoadVersion)return;
    results.push(...part);
   }
+  if(requestVersion!==summaryLoadVersion)return;
   // A permit is counted once per submitted permit number and submission date.
   // Keep one current record for duplicate keys, then derive status totals from
   // the unique set instead of adding daily status snapshots together.
@@ -466,18 +473,22 @@ async function loadPeriodSummary(silent=false){
   document.getElementById("periodRange").textContent=range.start+" 07:00 – "+range.endExclusive+" 07:00";
   document.getElementById("summaryDatePrint").textContent=range.start+" ถึง "+range.endExclusive;
   status.textContent=(reportPeriod==="weekly"?"สถิติรายสัปดาห์": "สถิติรายเดือน")+" · "+range.dates.length+" วันทำงาน · รอบเวลา 07:00–07:00 · อัปเดต "+new Date().toLocaleString("th-TH",{timeZone:"Asia/Bangkok"});
- }catch(err){status.textContent="โหลดสถิติไม่สำเร็จ: "+err.message;document.getElementById("summaryPdfBtn").disabled=true;document.getElementById("summaryCsvBtn").disabled=true}
+ }catch(err){if(requestVersion!==summaryLoadVersion)return;status.textContent="โหลดสถิติไม่สำเร็จ: "+err.message;document.getElementById("summaryPdfBtn").disabled=true;document.getElementById("summaryCsvBtn").disabled=true}
 }
 async function loadDailySummary(silent=false){
  if(reportPeriod==="monthly")return loadMonthlySummary(silent);if(reportPeriod==="weekly")return loadPeriodSummary(silent);
+ const requestVersion=++summaryLoadVersion;
  const d=document.getElementById("summaryDate").value,status=document.getElementById("summaryStatus");
  if(!d){status.textContent="กรุณาเลือกวันที่รายงาน";return}
  const {data:{session}}=await summaryDb.auth.getSession();
+ if(requestVersion!==summaryLoadVersion)return;
  if(!session){status.textContent="กรุณาเข้าสู่ระบบเจ้าหน้าที่ก่อน";return}
  if(!silent)status.textContent="กำลังโหลดข้อมูลจากทั้ง 4 ระบบ...";
  try{
   const response=await fetch(SUMMARY_SUPABASE_URL+"/functions/v1/security-daily-summary",{method:"POST",headers:{Authorization:"Bearer "+session.access_token,apikey:SUMMARY_SUPABASE_KEY,"Content-Type":"application/json"},body:JSON.stringify({date:d})});
-  const result=await response.json();if(!response.ok)throw new Error(result.error||"ไม่สามารถโหลดข้อมูลได้");
+  const result=await response.json();
+  if(requestVersion!==summaryLoadVersion)return;
+  if(!response.ok)throw new Error(result.error||"ไม่สามารถโหลดข้อมูลได้");
   // Reporter identity is resolved by the authenticated Edge Function via service-role access.
   const reporter=result.reporter||{};
   const reporterCode=String(reporter.employeeCode||session.user.email?.split("@")[0]||"").trim().toUpperCase();
@@ -521,7 +532,9 @@ async function loadDailySummary(silent=false){
   let typeCounts={incident:0,info:0,patrol:0,contractor:0};
   try{
    const lbResponse=await fetch(SUMMARY_SUPABASE_URL+"/functions/v1/security-logbook-feed",{method:"POST",headers:{Authorization:"Bearer "+session.access_token,apikey:SUMMARY_SUPABASE_KEY,"Content-Type":"application/json"},body:JSON.stringify({action:"list",date:d})});
-   const lbResult=await lbResponse.json();if(!lbResponse.ok)throw new Error(lbResult.error||"ไม่สามารถโหลด Logbook ได้");
+   const lbResult=await lbResponse.json();
+   if(requestVersion!==summaryLoadVersion)return;
+   if(!lbResponse.ok)throw new Error(lbResult.error||"ไม่สามารถโหลด Logbook ได้");
    logbookMessages=(lbResult.messages||[]).slice().sort((a,b)=>new Date(a.line_timestamp||a.created_at)-new Date(b.line_timestamp||b.created_at));
    reportMessages=logbookMessages.filter(isLogbookReport);
     typeCounts={incident:0,info:0,patrol:0,contractor:0};reportMessages.forEach(x=>{const type=classifyLogbookMessage(x);if(typeCounts[type]!==undefined)typeCounts[type]++});
@@ -541,7 +554,7 @@ async function loadDailySummary(silent=false){
 
   document.getElementById("summaryPdfBtn").disabled=false;document.getElementById("summaryCsvBtn").disabled=false;
   status.textContent="ข้อมูลวันที่ "+d+" · อัปเดต "+new Date(result.generatedAt).toLocaleString("th-TH",{timeZone:"Asia/Bangkok"})+" · แหล่งข้อมูลจริงจาก 4 ระบบ";
- }catch(err){summaryPayload=null;document.getElementById("summaryPdfBtn").disabled=true;document.getElementById("summaryCsvBtn").disabled=true;status.textContent="โหลดข้อมูลไม่สำเร็จ: "+err.message+" (ตรวจสอบการ Deploy Function และ Secrets ใน Supabase)";}
+ }catch(err){if(requestVersion!==summaryLoadVersion)return;summaryPayload=null;document.getElementById("summaryPdfBtn").disabled=true;document.getElementById("summaryCsvBtn").disabled=true;status.textContent="โหลดข้อมูลไม่สำเร็จ: "+err.message+" (ตรวจสอบการ Deploy Function และ Secrets ใน Supabase)";}
 }
 
 function monthlyAreaNames(value){
@@ -673,10 +686,12 @@ function renderMonthlyReport(data){
  '</div>';
 }
 async function loadMonthlySummary(silent=false){
+ const requestVersion=++summaryLoadVersion;
  const anchor=document.getElementById("summaryDate").value,status=document.getElementById("summaryStatus");
  const button=document.getElementById("monthlyPdfBtn");
  if(!anchor){status.textContent="กรุณาเลือกวันที่ในเดือนที่ต้องการ";button.disabled=true;return}
  const {data:{session}}=await summaryDb.auth.getSession();
+ if(requestVersion!==summaryLoadVersion)return;
  if(!session){status.textContent="กรุณาเข้าสู่ระบบเจ้าหน้าที่ก่อน";button.disabled=true;return}
  if(!silent)status.textContent="กำลังรวบรวมข้อมูล Contractor, Work Permit และเหตุการณ์ผิดปกติ...";
  button.disabled=true;monthlyPayload=null;
@@ -688,6 +703,7 @@ async function loadMonthlySummary(silent=false){
    body:JSON.stringify({month})
   });
   const data=await response.json();
+  if(requestVersion!==summaryLoadVersion)return;
   if(!response.ok)throw new Error(data.error||"ไม่สามารถโหลดรายงานรายเดือนได้");
   monthlyPayload=data;renderMonthlyReport(data);
   document.getElementById("summaryStaffLabel").textContent="เข้าสู่ระบบแล้ว: "+(data.generatedFor?.employeeCode||"")+" · "+(data.generatedFor?.fullName||"");
@@ -696,6 +712,7 @@ async function loadMonthlySummary(silent=false){
   button.disabled=false;
   status.textContent="ข้อมูลรายเดือน "+data.month+" · Contractor "+data.summary.contractorEntries+" รายการ · Work Permit "+data.summary.workPermits+" ใบ · บันทึก Logbook ผิดปกติ "+data.summary.abnormalIncidents+" รายการ · อัปเดต "+new Date(data.generatedAt).toLocaleString("th-TH",{timeZone:"Asia/Bangkok"});
  }catch(error){
+  if(requestVersion!==summaryLoadVersion)return;
   monthlyPayload=null;button.disabled=true;document.getElementById("monthlyReport").innerHTML="";
   status.textContent="โหลดรายงานรายเดือนไม่สำเร็จ: "+error.message;
  }
