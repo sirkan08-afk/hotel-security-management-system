@@ -551,9 +551,9 @@ function renderMonthlyReport(data){
  const actualRows=actualList.length?actualList.map(item=>'<tr><td>'+txt(item.area)+'</td><td style="text-align:center">'+item.records+'</td><td style="text-align:center">'+item.days.size+'</td><td style="text-align:center">'+item.singleAreaTeam+'</td><td>'+txt(fmtDates(item.days))+'</td></tr>').join(""):'<tr><td colspan="5">ไม่มีรายการลงทะเบียนผู้รับเหมาในเดือนนี้</td></tr>';
  const permitAreaRows=permitList.length?permitList.map(item=>'<tr><td>'+txt(item.area)+'</td><td style="text-align:center">'+item.permits+'</td><td style="text-align:center">'+item.days.size+'</td><td>'+txt(fmtDates(item.days))+'</td></tr>').join(""):'<tr><td colspan="4">ไม่มี Work Permit ตามช่วงวันที่ของเดือนนี้</td></tr>';
  const statusLabels={draft:"ฉบับร่าง",submitted:"ส่งคำขอแล้ว",under_review:"กำลังตรวจสอบ",approved:"อนุมัติแล้ว",rejected:"ไม่อนุมัติ",revision_requested:"รอแก้ไข",closed:"ปิดงานแล้ว"};
- const permitRows=(data.workPermits||[]).map((permit,index)=>{
+ const permitRows=(data.workPermits||[]).map((permit)=>{
   const days=permitDaysById.get(permit.id)||[];
-  return '<tr><td>'+ (index+1) +'</td><td><b>'+txt(permit.permit_no)+'</b></td><td>'+txt(permit.company_name)+'</td><td>'+txt(permit.work_title)+'</td><td>'+txt(permit.work_location)+'</td><td>'+monthlyFormatDate(permit.start_date)+' – '+monthlyFormatDate(permit.end_date||permit.start_date)+'</td><td style="text-align:center">'+days.length+'</td><td style="text-align:center">'+(Number(permit.team_size)||0)+'</td><td>'+txt(statusLabels[permit.status]||permit.status)+'</td></tr>';
+  return '<tr><td><b>'+txt(permit.permit_no)+'</b></td><td><b>'+txt(permit.company_name)+'</b><br>'+txt(permit.work_title)+'</td><td>'+txt(permit.work_location)+'</td><td>'+monthlyFormatDate(permit.start_date)+' – '+monthlyFormatDate(permit.end_date||permit.start_date)+'</td><td style="text-align:center">'+days.length+'</td><td style="text-align:center">'+(Number(permit.team_size)||0)+'</td><td>'+txt(statusLabels[permit.status]||permit.status)+'</td></tr>';
  }).join("");
  const eventRows=(data.abnormalEvents||[]).map((event,index)=>{
   const date=new Date(event.occurredAt);
@@ -579,7 +579,7 @@ function renderMonthlyReport(data){
   '<section class="monthly-section"><h2>2. พื้นที่และวันทำงานตาม Work Permit</h2>'+
    '<table class="monthly-table"><thead><tr><th style="width:34%">อาคาร / พื้นที่</th><th style="width:16%">จำนวนใบ WP</th><th style="width:14%">วันตามแผน</th><th style="width:36%">วันที่ทำงานตามใบอนุญาต</th></tr></thead><tbody>'+permitAreaRows+'</tbody></table>'+
    '<h3>รายการใบอนุญาตที่มีช่วงงานทับซ้อนกับเดือนนี้</h3>'+
-   '<table class="monthly-table"><thead><tr><th style="width:6%">ลำดับ</th><th style="width:13%">WP No.</th><th style="width:14%">บริษัท</th><th style="width:18%">ชื่องาน</th><th style="width:17%">พื้นที่ตามใบอนุญาต</th><th style="width:12%">ช่วงวันที่</th><th style="width:7%">วัน</th><th style="width:6%">ทีม</th><th style="width:10%">สถานะ</th></tr></thead><tbody>'+ (permitRows||'<tr><td colspan="9">ไม่มีรายการ</td></tr>') +'</tbody></table>'+
+   '<table class="monthly-table"><thead><tr><th style="width:14%">WP No.</th><th style="width:26%">บริษัท / งาน</th><th style="width:20%">พื้นที่ตามใบอนุญาต</th><th style="width:15%">ช่วงวันที่</th><th style="width:8%">วันในเดือน</th><th style="width:7%">ทีม</th><th style="width:10%">สถานะ</th></tr></thead><tbody>'+ (permitRows||'<tr><td colspan="7">ไม่มีรายการ</td></tr>') +'</tbody></table>'+
    '<div class="monthly-note">Work Permit คือสถานที่และช่วงเวลาที่ระบุในใบอนุญาต ไม่ถือเป็นหลักฐานยืนยันว่าเข้าพื้นที่จริง และไม่นำยอด Work Permit ไปรวมกับยอดลงทะเบียน Contractor.</div>'+
   '</section>'+
   '<section class="monthly-section"><h2>3. เหตุการณ์ผิดปกติ — Security Logbook</h2>'+
