@@ -359,9 +359,9 @@ async function loadDailySummary(silent=false){
   const rounds=result.patrol.rounds||[];
   const recordedRounds=rounds.filter(r=>(r.entries||[]).length>0).sort((a,b)=>String(a.roundTime).localeCompare(String(b.roundTime)));
   const patrolTable=recordedRounds.length?'<div class="table-wrap round-summary"><table class="detail-table"><thead><tr><th>รอบตรวจ</th><th>ปกติ</th><th>ผิดปกติ</th><th>เข้าไม่ได้</th><th>รวม</th></tr></thead><tbody>'+recordedRounds.map(r=>'<tr><td>รอบ '+escHtml(String(r.roundTime).slice(0,5))+' น.</td><td class="normal">'+(Number(r.normal)||0)+'</td><td class="abnormal">'+(Number(r.abnormal)||0)+'</td><td class="inaccessible">'+(Number(r.inaccessible)||0)+'</td><td class="total">'+(r.entries||[]).length+'</td></tr>').join("")+'</tbody></table></div>':'<p>ยังไม่มีบันทึกผลตรวจในวันที่เลือก</p>';
-  const reportUser=result.generatedFor||{};
+  const reportUser=result.reporter||{};
   document.getElementById("patrolReporterName").textContent=reportUser.fullName||"ไม่มีข้อมูลผู้บันทึก";
-  document.getElementById("patrolReporterId").textContent="Security Supervisor";
+  document.getElementById("patrolReporterId").textContent=reportUser.title||"Security Staff";
   const roundDetails=recordedRounds.map(r=>'<div class="round-block"><h3>รายละเอียดรอบ '+escHtml(String(r.roundTime).slice(0,5))+' น. ('+r.entries.length+' รายการ)</h3><div class="table-wrap"><table class="detail-table"><thead><tr><th>รหัสจุด</th><th>พื้นที่</th><th>จุดตรวจ</th><th>ผลตรวจ</th><th>หมายเหตุ</th></tr></thead><tbody>'+r.entries.map(x=>'<tr><td>'+escHtml(x.pointCode)+'</td><td>'+escHtml(x.areaName)+'</td><td>'+escHtml(x.pointName)+'</td><td class="'+(x.status==="normal"?"status-good":x.status==="abnormal"?"status-bad":"status-warn")+'">'+escHtml(patrolStatus[x.status]||x.status)+'</td><td>'+escHtml(x.notes||"-")+'</td></tr>').join("")+'</tbody></table></div></div>').join("");
   document.getElementById("patrolRoundDetails").innerHTML=patrolTable+roundDetails;
   document.getElementById("patrolPoints").textContent=result.patrol.activePoints;
