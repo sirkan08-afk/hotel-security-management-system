@@ -14,16 +14,24 @@
 @media(max-width:520px){.stats{grid-template-columns:repeat(2,minmax(0,1fr))}.toolbar{align-items:stretch}.toolbar .field{flex:1 1 130px}.brand h1{font-size:15px}.local-tag{font-size:9px}.check-row{grid-template-columns:1fr}.two-col{grid-template-columns:1fr}}
 @page{size:A4 portrait;margin:12mm}
 @media print{body{background:#fff!important}.app,.modal-backdrop,.toast{display:none!important}#printReport{display:block!important;color:#111;font-family:Arial,"Noto Sans Thai",Tahoma,sans-serif}#printReport h1{font-size:18px;text-align:center;margin:0 0 4px}#printReport .print-sub{text-align:center;color:#444;font-size:10px;margin-bottom:12px}#printReport h2{font-size:13px;margin:14px 0 7px;border-bottom:1px solid #64748b;padding-bottom:5px}#printReport .print-kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin:10px 0}#printReport .print-kpi{border:1px solid #cbd5e1;padding:8px;border-radius:5px}#printReport .print-kpi span{display:block;color:#475569;font-size:9px}#printReport .print-kpi b{display:block;font-size:17px;margin-top:3px}#printReport table{width:100%;border-collapse:collapse;table-layout:fixed;font-size:9px}#printReport th,#printReport td{border:1px solid #cbd5e1;padding:5px 6px;text-align:left;vertical-align:top;white-space:normal;overflow-wrap:anywhere}#printReport th{background:#eef2f6!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}#printReport tr{break-inside:avoid;page-break-inside:avoid}#printReport .print-footer{font-size:9px;color:#475569;margin-top:12px;text-align:right}#printReport .print-camera{break-inside:avoid;page-break-inside:avoid;border:1px solid #cbd5e1;padding:8px;margin:7px 0}#printReport .print-camera h3{font-size:10px;margin:0 0 5px}#printReport .print-camera p{font-size:9px;margin:3px 0;line-height:1.5}}
+
+.recording-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.data-table-wrap{width:100%;overflow:auto}
+.data-table{width:100%;border-collapse:collapse;font-size:11px;min-width:680px}
+.data-table th,.data-table td{border:1px solid var(--line);padding:8px;text-align:left;vertical-align:top}
+.data-table th{background:#f1f5f9;color:#334155}
+.incident-open{color:#991b1b;font-weight:800}.incident-closed{color:#166534;font-weight:700}
+@media(max-width:650px){.two-col,.recording-grid{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
 <div class="app" id="app">
   <header class="topbar">
     <div class="brand"><div class="brand-icon">📹</div><div><h1>CCTV INSPECTION CHECKLIST</h1><p>SECURITY DEPARTMENT · PORTAL MODULE</p></div></div>
-    <span class="local-tag">● CHECKLIST DATA STORED LOCALLY</span>
+    <span class="local-tag">● SHARED DATABASE · SUPABASE</span>
   </header>
   <main class="main">
-    <div class="notice"><b>ระบบตรวจกล้องแบบแยกอิสระ:</b> ตรวจภาพผ่านโปรแกรม CCTV เดิม แล้วบันทึกผลในหน้านี้ ข้อมูลทะเบียนกล้องและผลตรวจเก็บใน Browser ของเครื่องนี้เท่านั้น ไม่เชื่อมต่อ Server / NVR / DVR และไม่ดึงภาพกล้องเข้าระบบ</div>
+    <div class="notice"><b>ระบบ CCTV Operations:</b> ตรวจภาพผ่านโปรแกรม CCTV เดิม แล้วบันทึกผลตรวจ ระยะเวลาการบันทึก และช่วงเวลาที่ภาพมีปัญหา ข้อมูลจะจัดเก็บบน Supabase และใช้ร่วมกันได้ทุกเครื่องที่เข้าสู่ระบบ Security Patrol ทั้งนี้ระบบไม่ได้ดึงภาพสดจาก NVR โดยตรง</div>
     <div id="authNotice" class="notice" style="border-color:#cbd5e1;background:#f8fafc;color:#334155"><b>กำลังตรวจสอบบัญชี Security Patrol...</b></div>
     <section class="toolbar">
       <div class="field"><label for="inspectDate">วันที่ตรวจสอบ</label><input id="inspectDate" type="date"></div>
@@ -39,6 +47,42 @@
       <div class="stat bad"><span>พบข้อผิดปกติ</span><strong id="statIssue">0</strong></div>
       <div class="stat warn"><span>ตรวจบางส่วน</span><strong id="statPartial">0</strong></div>
       <div class="stat"><span>ยังไม่ได้ตรวจ</span><strong id="statPending">0</strong></div>
+    </section>
+
+    <section class="panel" id="nvrRecordingPanel">
+      <div class="panel-head"><div><h2>NVR Recording Period</h2><p>บันทึกช่วงเวลาที่เครื่อง NVR บันทึกภาพ และเก็บประวัติแต่ละช่วง</p></div><span class="muted" id="nvrSyncState" style="font-size:11px">กำลังโหลดข้อมูล...</span></div>
+      <div class="two-col">
+        <div class="report-option">
+          <h3>NVR 1 · No.001–No.062</h3>
+          <div class="field"><label for="nvr1Start">Recording Start</label><input id="nvr1Start" type="datetime-local"></div>
+          <div class="field"><label for="nvr1End">Recording End (เว้นว่าง = ถึงปัจจุบัน)</label><input id="nvr1End" type="datetime-local"></div>
+          <div class="field"><label for="nvr1Note">หมายเหตุ</label><input id="nvr1Note" placeholder="รายละเอียดเพิ่มเติม (ถ้ามี)"></div>
+          <div id="nvr1State" class="muted" style="font-size:11px">ยังไม่มีข้อมูลช่วงเวลาบันทึก</div>
+          <button class="btn" id="nvr1SaveBtn">บันทึกช่วงเวลาของ NVR 1</button>
+        </div>
+        <div class="report-option">
+          <h3>NVR 2 · No.063–No.069</h3>
+          <div class="field"><label for="nvr2Start">Recording Start</label><input id="nvr2Start" type="datetime-local"></div>
+          <div class="field"><label for="nvr2End">Recording End (เว้นว่าง = ถึงปัจจุบัน)</label><input id="nvr2End" type="datetime-local"></div>
+          <div class="field"><label for="nvr2Note">หมายเหตุ</label><input id="nvr2Note" placeholder="รายละเอียดเพิ่มเติม (ถ้ามี)"></div>
+          <div id="nvr2State" class="muted" style="font-size:11px">ยังไม่มีข้อมูลช่วงเวลาบันทึก</div>
+          <button class="btn" id="nvr2SaveBtn">บันทึกช่วงเวลาของ NVR 2</button>
+        </div>
+      </div>
+      <div id="nvrPeriodHistory" style="margin-top:14px"></div>
+    </section>
+    <section class="panel" id="recordingIncidentPanel">
+      <div class="panel-head"><div><h2>Recording Gap / Incident History</h2><p>บันทึกช่วงเวลาที่กล้องหรือ NVR ไม่สามารถบันทึกภาพได้</p></div><span class="muted" id="incidentCount" style="font-size:11px">0 รายการ</span></div>
+      <div class="two-col">
+        <div class="field"><label for="incidentNvr">NVR</label><select id="incidentNvr"><option value="1">NVR 1 · No.001–No.062</option><option value="2">NVR 2 · No.063–No.069</option></select></div>
+        <div class="field"><label for="incidentCamera">กล้องที่มีปัญหา</label><select id="incidentCamera"><option value="all">ทั้ง NVR / หลายกล้อง</option></select></div>
+        <div class="field"><label for="incidentStart">เริ่มมีปัญหา</label><input id="incidentStart" type="datetime-local"></div>
+        <div class="field"><label for="incidentEnd">สิ้นสุดปัญหา (เว้นว่างหากยังไม่แก้ไข)</label><input id="incidentEnd" type="datetime-local"></div>
+      </div>
+      <div class="field"><label for="incidentDetails">รายละเอียดปัญหา *</label><textarea id="incidentDetails" rows="2" placeholder="เช่น No.005 วันที่ 5 November 2026 เวลา 10:00–11:00 ไม่มีการบันทึกภาพ"></textarea></div>
+      <div class="field"><label for="incidentResolution">การแก้ไข / หมายเหตุหลังตรวจสอบ</label><textarea id="incidentResolution" rows="2" placeholder="ระบุการแก้ไขหรือสาเหตุ (ถ้าทราบ)"></textarea></div>
+      <div><button class="btn" id="saveIncidentBtn">＋ บันทึก Recording Incident</button></div>
+      <div id="incidentHistory" style="margin-top:14px"></div>
     </section>
     <section class="panel">
       <div class="panel-head"><div><h2>Camera Inventory & Daily Inspection</h2><p>เลือกกล้องเพื่อบันทึกผลตรวจแต่ละหัวข้อ</p></div><button class="btn" id="addCameraBtn">＋ เพิ่มกล้อง</button></div>
@@ -61,7 +105,7 @@
       <div class="panel-head"><div><h2>Inspection History</h2><p>ประวัติการตรวจที่บันทึกไว้ใน Browser เครื่องนี้</p></div><span class="muted" id="historyCount" style="font-size:11px">0 รายการ</span></div>
       <div id="historyList" class="empty">ยังไม่มีประวัติการตรวจ</div>
     </section>
-    <div class="footer">CCTV Inspection Checklist · ตรวจสอบชื่อจากบัญชี Security Patrol · ทะเบียนกล้องและผลตรวจเก็บใน Browser เครื่องนี้ · กรุณาสำรองข้อมูลเป็นประจำ</div>
+    <div class="footer">CCTV Operations · Shared Supabase Database · ตรวจสอบชื่อจากบัญชี Security Patrol</div>
   </main>
 </div>
 <div id="printReport"></div>
@@ -83,7 +127,7 @@
   <div class="modal-head"><div><h2 id="cameraModalTitle">เพิ่มกล้อง</h2><p>ข้อมูลทะเบียนกล้องจัดเก็บเฉพาะใน Browser นี้</p></div><button class="btn secondary small" data-close="cameraModal">ปิด</button></div>
   <div class="modal-body">
    <input id="editOriginalId" type="hidden">
-   <div class="two-col"><div class="field"><label for="cameraId">รหัสกล้อง *</label><input id="cameraId" placeholder="เช่น CAM-001"></div><div class="field"><label for="cameraName">ชื่อกล้อง *</label><input id="cameraName" placeholder="เช่น ทางเข้า Lobby"></div></div>
+   <div class="two-col"><div class="field"><label for="cameraId">รหัสกล้อง *</label><input id="cameraId" placeholder="เช่น No.001"></div><div class="field"><label for="cameraName">ชื่อกล้อง *</label><input id="cameraName" placeholder="เช่น ทางเข้า Lobby"></div></div>
    <div class="two-col"><div class="field"><label for="cameraArea">อาคาร / พื้นที่ *</label><input id="cameraArea" placeholder="เช่น อาคาร A"></div><div class="field"><label for="cameraChannel">หมายเหตุช่อง / ตำแหน่ง (ถ้ามี)</label><input id="cameraChannel" placeholder="เช่น CH-01"></div></div>
    <div class="field"><label for="cameraMemo">รายละเอียดเพิ่มเติม</label><textarea id="cameraMemo" rows="2" placeholder="ตำแหน่งติดตั้ง / จุดสังเกต"></textarea></div>
   </div>
@@ -94,7 +138,7 @@
 <script>
 (()=>{
 'use strict';
-const STORAGE_KEY='security_cctv_inspection_standalone_v1';
+const STORAGE_KEY='security_cctv_inspection_shared_v2';
 const CHECKS=[
  {key:'live',label:'ภาพสด (Live View)',detail:'เปิดดูภาพสดได้ ไม่มีข้อความ No Signal หรือภาพค้าง'},
  {key:'clear',label:'คุณภาพของภาพ',detail:'ภาพชัดเจน ไม่เบลอ ไม่มืดหรือสว่างผิดปกติ'},
@@ -104,58 +148,78 @@ const CHECKS=[
  {key:'night',label:'ภาพกลางคืน / IR',detail:'ภาพในสภาพแสงน้อยหรืออินฟราเรดทำงานปกติ'}
 ];
 const demoCameras=[
- {id:'CAM-001',name:"ทางเข้าห้องอาหาร",area:"F",channel:'',memo:''},
- {id:'CAM-002',name:"ทางเดินระหว่างบาร์/ครัว",area:"F",channel:'',memo:''},
- {id:'CAM-003',name:"ภายในบาร์",area:"F",channel:'',memo:''},
- {id:'CAM-004',name:"ทางเข้าห้องอาหารข้างบาร์",area:"F",channel:'',memo:''},
- {id:'CAM-005',name:"หน้าบาร์",area:"F",channel:'',memo:''},
- {id:'CAM-006',name:"ห้องอาหาร 2 มุมหน้าประตูทางเข้า",area:"F",channel:'',memo:''},
- {id:'CAM-007',name:"ห้องอาหารกระจก มุมกลางโต๊ะยาว",area:"F",channel:'',memo:''},
- {id:'CAM-008',name:"ห้องอาหาร 2 มุมตรงข้ามหน้าประตูทางเข้า",area:"F",channel:'',memo:''},
- {id:'CAM-009',name:"สระน้ำฝั่งซ้าย",area:"F",channel:'',memo:''},
- {id:'CAM-010',name:"หน้าบาร์บนเครื่องกาแฟ",area:"F",channel:'',memo:''},
- {id:'CAM-011',name:"โต๊ะอาหารด้านนอก",area:"F",channel:'',memo:''},
- {id:'CAM-012',name:"สะพานทางเดินระหว่างอาคาร A-B",area:"B",channel:'',memo:''},
- {id:'CAM-013',name:"หน้าทางเข้าห้องอาหาร",area:"F",channel:'',memo:''},
- {id:'CAM-014',name:"ด้านหลังห้องอาหาร 2",area:"F",channel:'',memo:''},
- {id:'CAM-015',name:"สระน้ำฝั่งขวา",area:"F",channel:'',memo:''},
- {id:'CAM-016',name:"หน้าล็อบบี้",area:"B",channel:'',memo:''},
- {id:'CAM-017',name:"ในสุดล็อบบี้",area:"B",channel:'',memo:''},
- {id:'CAM-018',name:"หน้าห้องพักอาคาร B",area:"B",channel:'',memo:''},
- {id:'CAM-019',name:"หน้าลิฟท์ชั้น G",area:"C",channel:'',memo:''},
- {id:'CAM-020',name:"หน้าลิฟท์ชั้น 2",area:"C",channel:'',memo:''},
- {id:'CAM-021',name:"หน้าทางเข้าล็อบบี้",area:"B",channel:'',memo:''},
- {id:'CAM-022',name:"มุมซ้ายหน้าล็อบบี้",area:"B",channel:'',memo:''},
- {id:'CAM-023',name:"ห้องเซิร์ฟเวอร์",area:"T2",channel:'',memo:''},
- {id:'CAM-024',name:"มุมโต๊ะรับรองแขกหน้าล็อบบี้",area:"B",channel:'',memo:''},
- {id:'CAM-025',name:"หน้าลิฟท์ชั้น 3",area:"C",channel:'',memo:''},
- {id:'CAM-026',name:"หน้าลิฟท์ชั้น 4",area:"C",channel:'',memo:''},
- {id:'CAM-027',name:"วงเวียนหน้าล็อบบี้",area:"ถนนลานจอด",channel:'',memo:''},
- {id:'CAM-028',name:"กลางห้อง Liva ชั้น LG",area:"A",channel:'',memo:''},
- {id:'CAM-029',name:"ทางเดินหน้าห้องพัก",area:"A",channel:'',memo:''},
- {id:'CAM-030',name:"ห้องรับรองชั้น G",area:"A",channel:'',memo:''},
- {id:'CAM-031',name:"บาร์ใน Liva ชั้น LG",area:"A",channel:'',memo:''},
- {id:'CAM-032',name:"อาคาร D",area:"ถนนลานจอด",channel:'',memo:''},
- {id:'CAM-033',name:"อาคาร A",area:"ถนนลานจอด",channel:'',memo:''},
- {id:'CAM-034',name:"หน้าบันไดทางขึ้นอาคาร D-ทางเดินริมน้ำ",area:"อาคาร D",channel:'',memo:''},
- {id:'CAM-035',name:"กำแพงประตูทางแยกเข้าล็อบบี้/อาคาร F",area:"อาคาร F",channel:'',memo:''},
- {id:'CAM-036',name:"Cap44",area:"ถนนทางเดิน",channel:'',memo:''},
- {id:'CAM-037',name:"บันไดทางขึ้น/ลงฝั่งริมน้ำ",area:"อาคาร D",channel:'',memo:''},
- {id:'CAM-038',name:"ข้าง Cap41-44",area:"ถนนทางเข้า",channel:'',memo:''},
- {id:'CAM-039',name:"หน้าบันไดทางลง",area:"อาคาร D",channel:'',memo:''},
- {id:'CAM-040',name:"สุดลานจอดฝั่งอาคาร D",area:"ลานจอดรถ",channel:'',memo:''},
- {id:'CAM-041',name:"กลางบันไดหน้าห้องพัก",area:"อาคาร D",channel:'',memo:''},
- {id:'CAM-042',name:"ลานกว้างข้างห้อง E36",area:"E",channel:'',memo:''},
- {id:'CAM-043',name:"แทงค์น้ำหลังอาคาร A",area:"A",channel:'',memo:''},
- {id:'CAM-044',name:"ช่องจอดจักรยาน",area:"A",channel:'',memo:''},
- {id:'CAM-045',name:"กลางสระน้ำอาคาร E",area:"E",channel:'',memo:''},
- {id:'CAM-046',name:"ริมสระน้ำอาคาร E ฝั่งขวา",area:"E",channel:'',memo:''},
- {id:'CAM-047',name:"ถนนทางเดินทางห้อง Cap53",area:"Cap51-56",channel:'',memo:''},
- {id:'CAM-048',name:"ถนนทางเดินหน้าห้อง/ทางขึ้นลงห้องปั๊ม",area:"Bali",channel:'',memo:''},
- {id:'CAM-049',name:"หน้า Cap51",area:"ถนนทางโค้ง",channel:'',memo:''},
- {id:'CAM-050',name:"Cap56",area:"ถนนทางเดิน",channel:'',memo:''}
+ {id:'No.001',name:"Lobby Building",area:'NVR 1',nvr:1,channel:'',memo:''},
+ {id:'No.002',name:"Building C Corridor",area:'NVR 1',nvr:1,channel:'',memo:''},
+ {id:'No.003',name:"Lobby B Behind",area:'NVR 1',nvr:1,channel:'',memo:''},
+ {id:'No.004',name:"In Front Room 23",area:'NVR 1',nvr:1,channel:'',memo:''},
+ {id:'No.005',name:"In front Lift Room 24",area:'NVR 1',nvr:1,channel:'',memo:''},
+ {id:'No.006',name:"In Front Lift Room 26",area:'NVR 1',nvr:1,channel:'',memo:''},
+ {id:'No.007',name:"Roundabout B 01",area:'NVR 1',nvr:1,channel:'',memo:''},
+ {id:'No.008',name:"Lobby B Behind 2",area:'NVR 1',nvr:1,channel:'',memo:''},
+ {id:'No.009',name:"Server Room",area:'NVR 1',nvr:1,channel:'',memo:''},
+ {id:'No.010',name:"Lobby B Rest stop",area:'NVR 1',nvr:1,channel:'',memo:''},
+ {id:'No.011',name:"In Front Room 28",area:'NVR 1',nvr:1,channel:'',memo:''},
+ {id:'No.012',name:"In Front Room 25",area:'NVR 1',nvr:1,channel:'',memo:''},
+ {id:'No.013',name:"Roundabout B 02",area:'NVR 1',nvr:1,channel:'',memo:''},
+ {id:'No.014',name:"Riva Stair landing",area:'NVR 1',nvr:1,channel:'',memo:''},
+ {id:'No.015',name:"In Front Room 11",area:'NVR 1',nvr:1,channel:'',memo:''},
+ {id:'No.016',name:"Building A FL.2",area:'NVR 1',nvr:1,channel:'',memo:''},
+ {id:'No.017',name:"Riva Bar Building A",area:'NVR 1',nvr:1,channel:'',memo:''},
+ {id:'No.018',name:"Parking Lot Building C 02",area:'NVR 1',nvr:1,channel:'',memo:''},
+ {id:'No.019',name:"Parking Lot Building C 01",area:'NVR 1',nvr:1,channel:'',memo:''},
+ {id:'No.020',name:"Waterside Path E36 01",area:'NVR 1',nvr:1,channel:'',memo:''},
+ {id:'No.021',name:"Entrance Building A-D",area:'NVR 1',nvr:1,channel:'',memo:''},
+ {id:'No.022',name:"Roundabout Generator",area:'NVR 1',nvr:1,channel:'',memo:''},
+ {id:'No.023',name:"Stairs Building D to E36",area:'NVR 1',nvr:1,channel:'',memo:''},
+ {id:'No.024',name:"Entrance Building A-D 02",area:'NVR 1',nvr:1,channel:'',memo:''},
+ {id:'No.025',name:"Building D MDB",area:'NVR 1',nvr:1,channel:'',memo:''},
+ {id:'No.026',name:"Parking Lot building D",area:'NVR 1',nvr:1,channel:'',memo:''},
+ {id:'No.027',name:"Building D Room 35",area:'NVR 1',nvr:1,channel:'',memo:''},
+ {id:'No.028',name:"Waterside Path E36 02",area:'NVR 1',nvr:1,channel:'',memo:''},
+ {id:'No.029',name:"Water tank Building A",area:'NVR 1',nvr:1,channel:'',memo:''},
+ {id:'No.030',name:"Building A Roundabout",area:'NVR 1',nvr:1,channel:'',memo:''},
+ {id:'No.031',name:"Swimming Pool E36 01",area:'NVR 1',nvr:1,channel:'',memo:''},
+ {id:'No.032',name:"Swimming Pool E36 02",area:'NVR 1',nvr:1,channel:'',memo:''},
+ {id:'No.033',name:"Footpath Capsule Room 53",area:'NVR 1',nvr:1,channel:'',memo:''},
+ {id:'No.034',name:"Footpath Bali 81 - 02",area:'NVR 1',nvr:1,channel:'',memo:''},
+ {id:'No.035',name:"Curved Road Room 51",area:'NVR 1',nvr:1,channel:'',memo:''},
+ {id:'No.036',name:"Footpath Capsule 55",area:'NVR 1',nvr:1,channel:'',memo:''},
+ {id:'No.037',name:"Footpath Bali 81 - 02",area:'NVR 1',nvr:1,channel:'',memo:''},
+ {id:'No.038',name:"Entrance Fitness Inside",area:'NVR 1',nvr:1,channel:'',memo:''},
+ {id:'No.039',name:"Restroom LG",area:'NVR 1',nvr:1,channel:'',memo:''},
+ {id:'No.040',name:"Roundabout MDB",area:'NVR 1',nvr:1,channel:'',memo:''},
+ {id:'No.041',name:"Footpath Store",area:'NVR 1',nvr:1,channel:'',memo:''},
+ {id:'No.042',name:"Lift Building C",area:'NVR 1',nvr:1,channel:'',memo:''},
+ {id:'No.043',name:"Entrance Fitness",area:'NVR 1',nvr:1,channel:'',memo:''},
+ {id:'No.044',name:"Natural Pond Building F",area:'NVR 1',nvr:1,channel:'',memo:''},
+ {id:'No.045',name:"Rear of Kitchen",area:'NVR 1',nvr:1,channel:'',memo:''},
+ {id:'No.046',name:"Footpath Capsule 52",area:'NVR 1',nvr:1,channel:'',memo:''},
+ {id:'No.047',name:"Fitness",area:'NVR 1',nvr:1,channel:'',memo:''},
+ {id:'No.048',name:"Roundabout Generator & MDB",area:'NVR 1',nvr:1,channel:'',memo:''},
+ {id:'No.049',name:"Restaurant Front Cashier",area:'NVR 1',nvr:1,channel:'',memo:''},
+ {id:'No.050',name:"Bar Front Area 01",area:'NVR 1',nvr:1,channel:'',memo:''},
+ {id:'No.051',name:"Behind the Bar Interior 1",area:'NVR 1',nvr:1,channel:'',memo:''},
+ {id:'No.052',name:"Behind the Bar Interior 2",area:'NVR 1',nvr:1,channel:'',memo:''},
+ {id:'No.053',name:"Bar Front Area 02",area:'NVR 1',nvr:1,channel:'',memo:''},
+ {id:'No.054',name:"Restaurant Large Room 01",area:'NVR 1',nvr:1,channel:'',memo:''},
+ {id:'No.055',name:"Restaurant Glass room",area:'NVR 1',nvr:1,channel:'',memo:''},
+ {id:'No.056',name:"Restaurant Room Inside 01",area:'NVR 1',nvr:1,channel:'',memo:''},
+ {id:'No.057',name:"Pool Restaurant 01",area:'NVR 1',nvr:1,channel:'',memo:''},
+ {id:'No.058',name:"Bar Inside",area:'NVR 1',nvr:1,channel:'',memo:''},
+ {id:'No.059',name:"Poolside Dining Tables",area:'NVR 1',nvr:1,channel:'',memo:''},
+ {id:'No.060',name:"Restaurant Cashier behind",area:'NVR 1',nvr:1,channel:'',memo:''},
+ {id:'No.061',name:"Restaurant Room behind",area:'NVR 1',nvr:1,channel:'',memo:''},
+ {id:'No.062',name:"Pool Restaurant 02",area:'NVR 1',nvr:1,channel:'',memo:''},
+ {id:'No.063',name:"Road in Front Fitness",area:'NVR 2',nvr:2,channel:'',memo:''},
+ {id:'No.064',name:"Bathroom Gas store",area:'NVR 2',nvr:2,channel:'',memo:''},
+ {id:'No.065',name:"Curved Road to Fitness",area:'NVR 2',nvr:2,channel:'',memo:''},
+ {id:'No.066',name:"Curved Road to Capsule 51",area:'NVR 2',nvr:2,channel:'',memo:''},
+ {id:'No.067',name:"Beside the Fitness Center",area:'NVR 2',nvr:2,channel:'',memo:''},
+ {id:'No.068',name:"Road Capsule 61",area:'NVR 2',nvr:2,channel:'',memo:''},
+ {id:'No.069',name:"Road Capsule 62",area:'NVR 2',nvr:2,channel:'',memo:''}
 ];
 let db=loadDb(),editingCameraId=null,checkingCameraId=null;
+let nvrPeriods=[],recordingIncidents=[],remoteReady=false,remoteSyncBusy=false;
 const $=id=>document.getElementById(id);
 // Identity is read from the same Supabase Auth session used by Security Patrol.
 // Only the user's profile/name is read remotely; CCTV inventory and inspection results remain local.
@@ -184,8 +248,9 @@ async function loadPatrolIdentity(session){
   $('inspector').value=fullName;
   $('inspectorRole').textContent=roleLabel(activeInspector.role,employeeCode);
   const notice=$('authNotice');notice.className='notice auth-ok';
-  notice.innerHTML='<b>เข้าสู่ระบบแล้ว:</b> '+escapeHtml(fullName)+' · '+escapeHtml(roleLabel(activeInspector.role,employeeCode))+'<span style="display:block;font-size:11px;margin-top:3px">ใช้บัญชีเดียวกับ Security Patrol · ผลตรวจ CCTV จะบันทึกในเครื่องนี้เท่านั้น</span>';
+  notice.innerHTML='<b>เข้าสู่ระบบแล้ว:</b> '+escapeHtml(fullName)+' · '+escapeHtml(roleLabel(activeInspector.role,employeeCode))+'<span style="display:block;font-size:11px;margin-top:3px">ใช้บัญชีเดียวกับ Security Patrol · ทะเบียนกล้องและผลตรวจ CCTV จะบันทึกร่วมกันบน Supabase</span>';
   if(!db.inspector){db.inspector=fullName;saveDb()}
+  try{await loadCctvRemoteData();}catch(remoteError){console.error(remoteError);$('nvrSyncState').textContent='โหลดข้อมูล Supabase ไม่สำเร็จ: '+(remoteError.message||'');setIdentityUnavailable('เชื่อมต่อฐานข้อมูล CCTV ไม่สำเร็จ: '+(remoteError.message||'กรุณาลองใหม่'),'error');return false;}
   renderAll();
   return true;
  }catch(error){setIdentityUnavailable('ตรวจสอบบัญชี Patrol ไม่สำเร็จ: '+(error?.message||String(error)),'error');return false}
@@ -204,7 +269,58 @@ async function initPatrolIdentity(){
 }
 
 function loadDb(){try{const raw=localStorage.getItem(STORAGE_KEY);if(raw){const parsed=JSON.parse(raw);if(parsed&&Array.isArray(parsed.cameras)&&parsed.inspections&&typeof parsed.inspections==='object'){const standardIds=new Set(demoCameras.map(c=>c.id));const extra=parsed.cameras.filter(c=>!standardIds.has(c.id));parsed.cameras=[...demoCameras,...extra];return parsed;}}}catch(e){console.warn('Local data read failed',e)}return {cameras:demoCameras,inspections:{},inspector:''};}
-function saveDb(){try{localStorage.setItem(STORAGE_KEY,JSON.stringify(db));return true;}catch(e){toast('บันทึกไม่สำเร็จ พื้นที่จัดเก็บ Browser อาจเต็ม');return false;}}
+function cameraNumber(id){const m=String(id||'').match(/(\d+)/);return m?Number(m[1]):null;}
+function saveDb(){
+ try{localStorage.setItem(STORAGE_KEY,JSON.stringify(db));}
+ catch(e){toast('บันทึกสำรองใน Browser ไม่สำเร็จ');return false;}
+ if(remoteReady&&!remoteSyncBusy)persistCctvData();
+ return true;
+}
+async function persistCctvData(){
+ if(!patrolAuth||!activeInspector||remoteSyncBusy)return;
+ remoteSyncBusy=true;
+ try{
+  const cameraRows=db.cameras.map(c=>({camera_no:cameraNumber(c.id),camera_name:c.name,nvr_no:c.nvr||Number(String(c.area||'').replace(/\D/g,''))||1,active:true,updated_at:new Date().toISOString()})).filter(c=>c.camera_no);
+  const {error:cameraError}=await patrolAuth.from('cctv_cameras').upsert(cameraRows,{onConflict:'camera_no'});
+  if(cameraError)throw cameraError;
+  const inspectionRows=[];
+  Object.entries(db.inspections||{}).forEach(([date,records])=>Object.entries(records||{}).forEach(([id,r])=>{
+   const no=cameraNumber(id);if(!no)return;
+   inspectionRows.push({camera_no:no,inspection_date:date,checks:r.checks||{},note:r.note||null,inspector_id:activeInspector.userId,inspector_name:r.inspector||activeInspector.fullName,inspector_code:r.inspectorId||activeInspector.employeeCode,updated_at:r.updatedAt||new Date().toISOString()});
+  }));
+  if(inspectionRows.length){
+   const {error:inspectionError}=await patrolAuth.from('cctv_inspections').upsert(inspectionRows,{onConflict:'inspection_date,camera_no'});
+   if(inspectionError)throw inspectionError;
+  }
+  $('nvrSyncState').textContent='ข้อมูลเชื่อมต่อ Supabase แล้ว';
+ }catch(error){console.error('CCTV Supabase sync failed',error);$('nvrSyncState').textContent='Sync ไม่สำเร็จ: '+(error.message||'ตรวจสอบการเชื่อมต่อ');toast('บันทึกใน Supabase ไม่สำเร็จ: '+(error.message||''));}
+ finally{remoteSyncBusy=false;}
+}
+async function loadCctvRemoteData(){
+ if(!patrolAuth||!activeInspector)return;
+ $('nvrSyncState').textContent='กำลังโหลดข้อมูลจาก Supabase...';
+ const [cameraRes,inspectionRes,periodRes,incidentRes]=await Promise.all([
+  patrolAuth.from('cctv_cameras').select('camera_no,camera_name,nvr_no,active').eq('active',true).order('camera_no'),
+  patrolAuth.from('cctv_inspections').select('camera_no,inspection_date,checks,note,inspector_name,inspector_code,updated_at').order('inspection_date'),
+  patrolAuth.from('cctv_nvr_recording_periods').select('*').order('recording_start_at',{ascending:false}),
+  patrolAuth.from('cctv_recording_incidents').select('*').order('start_at',{ascending:false})
+ ]);
+ for(const result of [cameraRes,inspectionRes,periodRes,incidentRes])if(result.error)throw result.error;
+ db.cameras=(cameraRes.data||[]).map(c=>({id:'No.'+String(c.camera_no).padStart(3,'0'),name:c.camera_name,area:'NVR '+c.nvr_no,nvr:c.nvr_no,channel:'',memo:''}));
+ db.inspections={};
+ (inspectionRes.data||[]).forEach(r=>{
+  const date=String(r.inspection_date).slice(0,10),id='No.'+String(r.camera_no).padStart(3,'0');
+  db.inspections[date]??={};
+  db.inspections[date][id]={checks:r.checks||{},note:r.note||'',inspector:r.inspector_name||'',inspectorId:r.inspector_code||'',updatedAt:r.updated_at||''};
+ });
+ nvrPeriods=periodRes.data||[];
+ recordingIncidents=incidentRes.data||[];
+ db.inspector=activeInspector.fullName;
+ localStorage.setItem(STORAGE_KEY,JSON.stringify(db));
+ remoteReady=true;
+ $('nvrSyncState').textContent='เชื่อมต่อ Supabase แล้ว · ใช้ข้อมูลร่วมกันทุกเครื่อง';
+ renderAll();
+}
 function today(){const d=new Date();return [d.getFullYear(),String(d.getMonth()+1).padStart(2,'0'),String(d.getDate()).padStart(2,'0')].join('-');}
 function escapeHtml(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
 function toast(msg){const el=$('toast');el.textContent=msg;el.classList.add('show');clearTimeout(toast.timer);toast.timer=setTimeout(()=>el.classList.remove('show'),2600);}
@@ -235,13 +351,85 @@ function reportRows(date){const rows=[['CCTV DAILY INSPECTION REPORT',date],['�
 function exportDailyCsv(){downloadCsv('CCTV-Daily-Inspection-'+currentDate()+'.csv',reportRows(currentDate()));toast('ส่งออก CSV รายวันแล้ว เปิดด้วย Excel ได้');}
 function monthDates(month){const [y,m]=month.split('-').map(Number);const last=new Date(y,m,0).getDate();return Array.from({length:last},(_,i)=>`${month}-${String(i+1).padStart(2,'0')}`);}
 function exportMonthlyCsv(){const month=$('reportMonth').value;if(!month){toast('กรุณาเลือกเดือน');return;}const rows=[['CCTV MONTHLY INSPECTION SUMMARY',month],['วันที่','รหัสกล้อง','ชื่อกล้อง','พื้นที่','สถานะ','จำนวนหัวข้อปกติ','จำนวนหัวข้อผิดปกติ','จำนวนหัวข้อ N/A','หมายเหตุ']];monthDates(month).forEach(date=>db.cameras.forEach(c=>{const r=getRecord(date,c.id);if(!r)return;const values=CHECKS.map(k=>r.checks?.[k.key]||'');rows.push([date,c.id,c.name,c.area,statusText(getStatus(r)),values.filter(x=>x==='pass').length,values.filter(x=>x==='fail').length,values.filter(x=>x==='na').length,r.note||'']);}));downloadCsv('CCTV-Monthly-Summary-'+month+'.csv',rows);toast('ส่งออกรายงาน CSV รายเดือนแล้ว');}
-function dailyPrintHtml(){const date=currentDate(),c=db.cameras.map(cam=>({cam,rec:getRecord(date,cam.id)}));const co=counts();const rows=c.map(({cam,rec})=>`<tr><td>${escapeHtml(cam.id)}</td><td>${escapeHtml(cam.name)}</td><td>${escapeHtml(cam.area)}</td><td>${statusText(getStatus(rec))}</td><td>${CHECKS.map(k=>escapeHtml(k.label)+': '+(({pass:'ปกติ',fail:'ผิดปกติ',na:'N/A'})[rec?.checks?.[k.key]]||'ยังไม่ตรวจ')).join('<br>')}</td><td>${escapeHtml(rec?.note||'-')}</td><td>${escapeHtml(rec?.inspector||activeInspector?.fullName||'-')}</td></tr>`).join('');return `<h1>DAILY CCTV INSPECTION REPORT</h1><div class="print-sub">วันที่ ${escapeHtml(date)} · Security Department · ผู้ตรวจ ${escapeHtml(activeInspector?.fullName||'ไม่ระบุ')}</div><div class="print-kpis"><div class="print-kpi"><span>กล้องทั้งหมด</span><b>${co.total}</b></div><div class="print-kpi"><span>ปกติครบ</span><b>${co.normal}</b></div><div class="print-kpi"><span>พบปัญหา</span><b>${co.issue}</b></div><div class="print-kpi"><span>รอตรวจ/บางส่วน</span><b>${co.pending+co.partial}</b></div></div><table><thead><tr><th style="width:10%">รหัส</th><th style="width:14%">ชื่อกล้อง</th><th style="width:12%">พื้นที่</th><th style="width:11%">สถานะ</th><th style="width:29%">ผลตรวจแต่ละหัวข้อ</th><th style="width:14%">หมายเหตุ</th><th style="width:10%">ผู้ตรวจ</th></tr></thead><tbody>${rows}</tbody></table><div class="print-footer">CCTV Inspection Checklist · บันทึกในเครื่องนี้เท่านั้น</div>`;}
-function monthlyPrintHtml(){const month=$('reportMonth').value,dates=monthDates(month);let total=0,normal=0,issue=0,partial=0,pending=0;const dayRows=dates.map(date=>{const rows=db.cameras.map(c=>({c,r:getRecord(date,c.id)}));const checked=rows.filter(x=>x.r).length;const n=rows.filter(x=>getStatus(x.r)==='ok').length;const i=rows.filter(x=>getStatus(x.r)==='issue').length;const p=rows.filter(x=>getStatus(x.r)==='partial').length;const pend=rows.filter(x=>getStatus(x.r)==='pending').length;if(checked){total+=checked;normal+=n;issue+=i;partial+=p;pending+=pend;}return checked?`<tr><td>${date}</td><td>${checked}</td><td>${n}</td><td>${i}</td><td>${p}</td><td>${pend}</td></tr>`:''}).filter(Boolean).join('');const issueRows=[];dates.forEach(date=>db.cameras.forEach(c=>{const r=getRecord(date,c.id);if(r&&getStatus(r)==='issue')issueRows.push(`<tr><td>${date}</td><td>${escapeHtml(c.id)}</td><td>${escapeHtml(c.name)}</td><td>${escapeHtml(c.area)}</td><td>${escapeHtml(CHECKS.filter(k=>r.checks?.[k.key]==='fail').map(k=>k.label).join(', '))}</td><td>${escapeHtml(r.note||'-')}</td><td>${escapeHtml(r.inspector||'-')}</td></tr>`)}));return `<h1>MONTHLY CCTV INSPECTION SUMMARY</h1><div class="print-sub">ประจำเดือน ${escapeHtml(month)} · Security Department</div><div class="print-kpis"><div class="print-kpi"><span>รายการตรวจ</span><b>${total}</b></div><div class="print-kpi"><span>ปกติครบ</span><b>${normal}</b></div><div class="print-kpi"><span>พบปัญหา</span><b>${issue}</b></div><div class="print-kpi"><span>ตรวจบางส่วน/รอตรวจ</span><b>${partial+pending}</b></div></div><h2>สรุปผลตรวจรายวัน</h2><table><thead><tr><th>วันที่</th><th>ตรวจแล้ว</th><th>ปกติ</th><th>ผิดปกติ</th><th>บางส่วน</th><th>ยังไม่ตรวจ</th></tr></thead><tbody>${dayRows||'<tr><td colspan="6">ไม่มีข้อมูลตรวจในเดือนนี้</td></tr>'}</tbody></table><h2>รายการกล้องที่พบความผิดปกติ</h2><table><thead><tr><th>วันที่</th><th>รหัส</th><th>กล้อง</th><th>พื้นที่</th><th>หัวข้อที่ไม่ผ่าน</th><th>หมายเหตุ</th><th>ผู้ตรวจ</th></tr></thead><tbody>${issueRows.join('')||'<tr><td colspan="7">ไม่พบรายการผิดปกติในเดือนนี้</td></tr>'}</tbody></table><div class="print-footer">CCTV Inspection Checklist · Local browser data</div>`;}
+function dailyPrintHtml(){const date=currentDate(),c=db.cameras.map(cam=>({cam,rec:getRecord(date,cam.id)}));const co=counts();const rows=c.map(({cam,rec})=>`<tr><td>${escapeHtml(cam.id)}</td><td>${escapeHtml(cam.name)}</td><td>${escapeHtml(cam.area)}</td><td>${statusText(getStatus(rec))}</td><td>${CHECKS.map(k=>escapeHtml(k.label)+': '+(({pass:'ปกติ',fail:'ผิดปกติ',na:'N/A'})[rec?.checks?.[k.key]]||'ยังไม่ตรวจ')).join('<br>')}</td><td>${escapeHtml(rec?.note||'-')}</td><td>${escapeHtml(rec?.inspector||activeInspector?.fullName||'-')}</td></tr>`).join('');return `<h1>DAILY CCTV INSPECTION REPORT</h1><div class="print-sub">วันที่ ${escapeHtml(date)} · Security Department · ผู้ตรวจ ${escapeHtml(activeInspector?.fullName||'ไม่ระบุ')}</div><div class="print-kpis"><div class="print-kpi"><span>กล้องทั้งหมด</span><b>${co.total}</b></div><div class="print-kpi"><span>ปกติครบ</span><b>${co.normal}</b></div><div class="print-kpi"><span>พบปัญหา</span><b>${co.issue}</b></div><div class="print-kpi"><span>รอตรวจ/บางส่วน</span><b>${co.pending+co.partial}</b></div></div><table><thead><tr><th style="width:10%">รหัส</th><th style="width:14%">ชื่อกล้อง</th><th style="width:12%">พื้นที่</th><th style="width:11%">สถานะ</th><th style="width:29%">ผลตรวจแต่ละหัวข้อ</th><th style="width:14%">หมายเหตุ</th><th style="width:10%">ผู้ตรวจ</th></tr></thead><tbody>${rows}</tbody></table><div class="print-footer">CCTV Operations · Supabase Shared Database</div>`;}
+function monthlyPrintHtml(){const month=$('reportMonth').value,dates=monthDates(month);let total=0,normal=0,issue=0,partial=0,pending=0;const dayRows=dates.map(date=>{const rows=db.cameras.map(c=>({c,r:getRecord(date,c.id)}));const checked=rows.filter(x=>x.r).length;const n=rows.filter(x=>getStatus(x.r)==='ok').length;const i=rows.filter(x=>getStatus(x.r)==='issue').length;const p=rows.filter(x=>getStatus(x.r)==='partial').length;const pend=rows.filter(x=>getStatus(x.r)==='pending').length;if(checked){total+=checked;normal+=n;issue+=i;partial+=p;pending+=pend;}return checked?`<tr><td>${date}</td><td>${checked}</td><td>${n}</td><td>${i}</td><td>${p}</td><td>${pend}</td></tr>`:''}).filter(Boolean).join('');const issueRows=[];dates.forEach(date=>db.cameras.forEach(c=>{const r=getRecord(date,c.id);if(r&&getStatus(r)==='issue')issueRows.push(`<tr><td>${date}</td><td>${escapeHtml(c.id)}</td><td>${escapeHtml(c.name)}</td><td>${escapeHtml(c.area)}</td><td>${escapeHtml(CHECKS.filter(k=>r.checks?.[k.key]==='fail').map(k=>k.label).join(', '))}</td><td>${escapeHtml(r.note||'-')}</td><td>${escapeHtml(r.inspector||'-')}</td></tr>`)}));return `<h1>MONTHLY CCTV INSPECTION SUMMARY</h1><div class="print-sub">ประจำเดือน ${escapeHtml(month)} · Security Department</div><div class="print-kpis"><div class="print-kpi"><span>รายการตรวจ</span><b>${total}</b></div><div class="print-kpi"><span>ปกติครบ</span><b>${normal}</b></div><div class="print-kpi"><span>พบปัญหา</span><b>${issue}</b></div><div class="print-kpi"><span>ตรวจบางส่วน/รอตรวจ</span><b>${partial+pending}</b></div></div><h2>สรุปผลตรวจรายวัน</h2><table><thead><tr><th>วันที่</th><th>ตรวจแล้ว</th><th>ปกติ</th><th>ผิดปกติ</th><th>บางส่วน</th><th>ยังไม่ตรวจ</th></tr></thead><tbody>${dayRows||'<tr><td colspan="6">ไม่มีข้อมูลตรวจในเดือนนี้</td></tr>'}</tbody></table><h2>รายการกล้องที่พบความผิดปกติ</h2><table><thead><tr><th>วันที่</th><th>รหัส</th><th>กล้อง</th><th>พื้นที่</th><th>หัวข้อที่ไม่ผ่าน</th><th>หมายเหตุ</th><th>ผู้ตรวจ</th></tr></thead><tbody>${issueRows.join('')||'<tr><td colspan="7">ไม่พบรายการผิดปกติในเดือนนี้</td></tr>'}</tbody></table><div class="print-footer">CCTV Operations · Supabase Shared Database</div>`;}
 function printReport(html){$('printReport').innerHTML=html;window.print();}
 function exportBackup(){const blob=new Blob([JSON.stringify(db,null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='CCTV-Inspection-Backup-'+today()+'.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);toast('ดาวน์โหลดไฟล์สำรองข้อมูลแล้ว');}
 function importBackup(file){if(!identityReady||!activeInspector){toast('กรุณาเข้าสู่ระบบ Security Patrol ก่อนนำเข้าข้อมูล');return;}const reader=new FileReader();reader.onload=()=>{try{const value=JSON.parse(reader.result);if(!value||!Array.isArray(value.cameras)||!value.inspections)throw new Error('รูปแบบไฟล์ไม่ถูกต้อง');if(!confirm('นำเข้าข้อมูลจะเขียนทับทะเบียนกล้องและข้อมูลตรวจสอบในเครื่องนี้ ต้องการดำเนินการหรือไม่?'))return;db={cameras:value.cameras,inspections:value.inspections,inspector:value.inspector||''};if(saveDb()){ $('inspector').value=activeInspector?.fullName||'';renderAll();toast('นำเข้าข้อมูลสำรองแล้ว');}}catch(e){toast('ไม่สามารถนำเข้าไฟล์นี้ได้: '+e.message)}};reader.readAsText(file,'utf-8');}
 function renderHistory(){const days=Object.keys(db.inspections).sort().reverse();$('historyCount').textContent=days.length+' วัน';$('historyList').className=days.length?'':'empty';$('historyList').innerHTML=days.length?days.map(date=>{const records=Object.values(db.inspections[date]||{}),ok=records.filter(r=>getStatus(r)==='ok').length,issue=records.filter(r=>getStatus(r)==='issue').length;return `<div class="camera-card" style="margin-bottom:8px"><div class="camera-card-top"><div class="camera-main"><div class="camera-name">${date}</div><div class="camera-area">ตรวจบันทึก ${records.length} กล้อง · ปกติ ${ok} · ผิดปกติ ${issue}</div></div><button class="btn secondary small" data-history="${date}">ดูวันนี้</button></div></div>`}).join(''):'ยังไม่มีประวัติการตรวจ';}
-function renderAll(){renderCameras();renderHistory();}
+function formatLocalDateTime(value){if(!value)return '-';return new Date(value).toLocaleString('en-GB',{timeZone:'Asia/Bangkok',day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit',hour12:false});}
+function toLocalInput(value){if(!value)return '';const d=new Date(value);return new Date(d.getTime()-d.getTimezoneOffset()*60000).toISOString().slice(0,16);}
+function renderNvrPanel(){
+ [1,2].forEach(nvr=>{
+  const periods=nvrPeriods.filter(p=>Number(p.nvr_no)===nvr).sort((a,b)=>new Date(b.recording_start_at)-new Date(a.recording_start_at));
+  const latest=periods[0],open=periods.find(p=>!p.recording_end_at);
+  const start=$('nvr'+nvr+'Start'),end=$('nvr'+nvr+'End'),note=$('nvr'+nvr+'Note');
+  if(latest&&document.activeElement!==start)start.value=toLocalInput(latest.recording_start_at);
+  if(latest&&document.activeElement!==end)end.value=toLocalInput(latest.recording_end_at);
+  if(latest&&document.activeElement!==note)note.value=latest.notes||'';
+  $('nvr'+nvr+'State').innerHTML=open?'<span class="incident-open">● กำลังบันทึก</span> ตั้งแต่ '+escapeHtml(formatLocalDateTime(open.recording_start_at)):'<span class="muted">ช่วงล่าสุด: '+(latest?escapeHtml(formatLocalDateTime(latest.recording_start_at))+' – '+escapeHtml(formatLocalDateTime(latest.recording_end_at)):'ยังไม่มีข้อมูล')+'</span>';
+ });
+ const rows=nvrPeriods.map(p=>'<tr><td>NVR '+p.nvr_no+'</td><td>'+escapeHtml(formatLocalDateTime(p.recording_start_at))+'</td><td>'+escapeHtml(formatLocalDateTime(p.recording_end_at))+'</td><td>'+escapeHtml(p.created_by_name||'-')+'</td><td>'+escapeHtml(p.notes||'-')+'</td></tr>').join('');
+ $('nvrPeriodHistory').innerHTML='<h3 style="font-size:13px;margin:0 0 8px">Recording Period History</h3><div class="data-table-wrap"><table class="data-table"><thead><tr><th>NVR</th><th>เริ่มบันทึก</th><th>สิ้นสุด</th><th>บันทึกโดย</th><th>หมายเหตุ</th></tr></thead><tbody>'+(rows||'<tr><td colspan="5">ยังไม่มีประวัติการบันทึก</td></tr>')+'</tbody></table></div>';
+}
+function refreshIncidentCameraOptions(){
+ const nvr=Number($('incidentNvr').value||1),select=$('incidentCamera'),old=select.value;
+ const cameras=db.cameras.filter(c=>Number(c.nvr)===nvr);
+ select.innerHTML='<option value="all">ทั้ง NVR / หลายกล้อง</option>'+cameras.map(c=>'<option value="'+cameraNumber(c.id)+'">'+escapeHtml(c.id+' · '+c.name)+'</option>').join('');
+ if([...select.options].some(o=>o.value===old))select.value=old;
+}
+function renderIncidents(){
+ $('incidentCount').textContent=recordingIncidents.length+' รายการ';
+ const rows=recordingIncidents.map(item=>{
+  const camera=item.camera_no?'No.'+String(item.camera_no).padStart(3,'0'):'ทั้ง NVR / หลายกล้อง';
+  const open=!item.end_at;
+  const mins=item.end_at?Math.max(0,Math.round((new Date(item.end_at)-new Date(item.start_at))/60000)):null;
+  const duration=mins===null?'ยังไม่ปิดเหตุ':(Math.floor(mins/60)+' ชม. '+(mins%60)+' นาที');
+  return '<tr><td>NVR '+item.nvr_no+'</td><td>'+escapeHtml(camera)+'</td><td>'+escapeHtml(formatLocalDateTime(item.start_at))+'</td><td>'+escapeHtml(formatLocalDateTime(item.end_at))+'</td><td>'+escapeHtml(duration)+'</td><td>'+escapeHtml(item.details)+'</td><td>'+escapeHtml(item.resolution||'-')+'</td><td>'+(open?'<span class="incident-open">กำลังดำเนินการ</span> <button class="btn secondary small" data-close-incident="'+item.id+'">ปิดเหตุ</button>':'<span class="incident-closed">ปิดเหตุแล้ว</span>')+'</td></tr>';
+ }).join('');
+ $('incidentHistory').innerHTML='<div class="data-table-wrap"><table class="data-table"><thead><tr><th>NVR</th><th>กล้อง</th><th>เริ่มมีปัญหา</th><th>สิ้นสุด</th><th>ระยะเวลา</th><th>รายละเอียด</th><th>การแก้ไข</th><th>สถานะ</th></tr></thead><tbody>'+(rows||'<tr><td colspan="8">ยังไม่มีประวัติ Recording Incident</td></tr>')+'</tbody></table></div>';
+}
+async function saveNvrPeriod(nvr){
+ if(!identityReady||!activeInspector){toast('กรุณาเข้าสู่ระบบ Security Patrol ก่อน');return;}
+ const startValue=$('nvr'+nvr+'Start').value,endValue=$('nvr'+nvr+'End').value,notes=$('nvr'+nvr+'Note').value.trim();
+ if(!startValue){toast('กรุณาระบุวันและเวลาเริ่มบันทึกของ NVR '+nvr);return;}
+ const startAt=new Date(startValue).toISOString(),endAt=endValue?new Date(endValue).toISOString():null;
+ if(endAt&&new Date(endAt)<new Date(startAt)){toast('เวลาสิ้นสุดต้องไม่ก่อนเวลาเริ่มต้น');return;}
+ const open=nvrPeriods.find(p=>Number(p.nvr_no)===nvr&&!p.recording_end_at);
+ let result;
+ if(open){
+  result=await patrolAuth.from('cctv_nvr_recording_periods').update({recording_start_at:startAt,recording_end_at:endAt,notes,created_by:activeInspector.userId,created_by_name:activeInspector.fullName}).eq('id',open.id);
+ }else{
+  result=await patrolAuth.from('cctv_nvr_recording_periods').insert({nvr_no:nvr,recording_start_at:startAt,recording_end_at:endAt,notes,created_by:activeInspector.userId,created_by_name:activeInspector.fullName});
+ }
+ if(result.error){toast('บันทึก NVR ไม่สำเร็จ: '+result.error.message);return;}
+ await loadCctvRemoteData();toast('บันทึก Recording Period ของ NVR '+nvr+' แล้ว');
+}
+async function saveRecordingIncident(){
+ if(!identityReady||!activeInspector){toast('กรุณาเข้าสู่ระบบ Security Patrol ก่อน');return;}
+ const nvr=Number($('incidentNvr').value),cameraValue=$('incidentCamera').value,startValue=$('incidentStart').value,endValue=$('incidentEnd').value,details=$('incidentDetails').value.trim(),resolution=$('incidentResolution').value.trim();
+ if(!startValue||!details){toast('กรุณาระบุเวลาเริ่มปัญหาและรายละเอียด');return;}
+ const startAt=new Date(startValue).toISOString(),endAt=endValue?new Date(endValue).toISOString():null;
+ if(endAt&&new Date(endAt)<new Date(startAt)){toast('เวลาสิ้นสุดปัญหาต้องไม่ก่อนเวลาเริ่ม');return;}
+ const {error}=await patrolAuth.from('cctv_recording_incidents').insert({nvr_no:nvr,camera_no:cameraValue==='all'?null:Number(cameraValue),incident_type:'no_recording',start_at:startAt,end_at:endAt,details,resolution:resolution||null,reported_by:activeInspector.userId,reported_by_name:activeInspector.fullName});
+ if(error){toast('บันทึก Incident ไม่สำเร็จ: '+error.message);return;}
+ $('incidentDetails').value='';$('incidentResolution').value='';$('incidentEnd').value='';
+ await loadCctvRemoteData();toast('บันทึก Recording Incident แล้ว');
+}
+async function closeRecordingIncident(id){
+ const item=recordingIncidents.find(x=>x.id===id);if(!item)return;
+ const resolution=prompt('ระบุการแก้ไข / สาเหตุที่ทำให้กลับมาบันทึกได้: ',item.resolution||'');
+ if(resolution===null)return;
+ const {error}=await patrolAuth.from('cctv_recording_incidents').update({end_at:new Date().toISOString(),resolution,reported_by:activeInspector.userId,reported_by_name:activeInspector.fullName}).eq('id',id);
+ if(error){toast('ปิด Incident ไม่สำเร็จ: '+error.message);return;}
+ await loadCctvRemoteData();toast('ปิด Recording Incident แล้ว');
+}
+function renderAll(){renderCameras();renderHistory();renderNvrPanel();refreshIncidentCameraOptions();renderIncidents();}
+$('nvr1SaveBtn').addEventListener('click',()=>saveNvrPeriod(1));
+$('nvr2SaveBtn').addEventListener('click',()=>saveNvrPeriod(2));
+$('incidentNvr').addEventListener('change',refreshIncidentCameraOptions);
+$('saveIncidentBtn').addEventListener('click',saveRecordingIncident);
+$('incidentHistory').addEventListener('click',e=>{const b=e.target.closest('[data-close-incident]');if(b)closeRecordingIncident(b.dataset.closeIncident);});
 $('inspectDate').value=today();$('reportMonth').value=today().slice(0,7);$('inspector').value='กำลังตรวจสอบบัญชี Security Patrol...';initPatrolIdentity();
 $('addCameraBtn').addEventListener('click',()=>openCameraEditor());$('saveCameraBtn').addEventListener('click',saveCamera);$('deleteCameraBtn').addEventListener('click',deleteCamera);$('saveCameraCheckBtn').addEventListener('click',saveCheck);$('clearCameraCheckBtn').addEventListener('click',clearCheck);$('saveDayBtn').addEventListener('click',saveDay);$('clearDayBtn').addEventListener('click',()=>{if(!identityReady||!activeInspector){toast('กรุณาเข้าสู่ระบบ Security Patrol ก่อนแก้ไขผลตรวจ');return;}if(!confirm('ล้างผลตรวจทั้งหมดในวันที่ '+currentDate()+' ?'))return;delete db.inspections[currentDate()];saveDb();renderAll();toast('ล้างผลตรวจประจำวันแล้ว');});$('dailyCsvBtn').addEventListener('click',exportDailyCsv);$('monthlyCsvBtn').addEventListener('click',exportMonthlyCsv);$('dailyPdfBtn').addEventListener('click',()=>printReport(dailyPrintHtml()));$('monthlyPdfBtn').addEventListener('click',()=>{if(!$('reportMonth').value){toast('กรุณาเลือกเดือน');return;}printReport(monthlyPrintHtml());});$('exportBackupBtn').addEventListener('click',exportBackup);$('importBackupBtn').addEventListener('click',()=>$('importBackupFile').click());$('importBackupFile').addEventListener('change',e=>{if(e.target.files[0])importBackup(e.target.files[0]);e.target.value='';});$('inspectDate').addEventListener('change',renderAll);['cameraSearch','areaFilter','statusFilter'].forEach(id=>$(id).addEventListener(id==='cameraSearch'?'input':'change',renderCameras));$('cameraList').addEventListener('click',e=>{const btn=e.target.closest('button[data-action]');if(!btn)return;const id=btn.dataset.id;if(btn.dataset.action==='check')openCheck(id);if(btn.dataset.action==='edit')openCameraEditor(id);});$('historyList').addEventListener('click',e=>{const btn=e.target.closest('button[data-history]');if(btn){$('inspectDate').value=btn.dataset.history;renderAll();window.scrollTo({top:0,behavior:'smooth'});}});document.querySelectorAll('[data-close]').forEach(b=>b.addEventListener('click',()=>closeModal(b.dataset.close)));document.querySelectorAll('.modal-backdrop').forEach(el=>el.addEventListener('click',e=>{if(e.target===el)closeModal(el.id)}));
 renderAll();
