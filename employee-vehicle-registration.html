@@ -33,9 +33,40 @@ let vehicleRows=[];
 function sortVehicleRows(rows){return rows.sort((a,b)=>String(a.employee_id).localeCompare(String(b.employee_id),"en",{numeric:true,sensitivity:"base"})||String(a.vehicle_type).localeCompare(String(b.vehicle_type),"th")||String(a.license_plate).localeCompare(String(b.license_plate),"th"));}
 function exportVehicles(){
   if(!vehicleRows.length){message("adminMsg","ไม่มีข้อมูลสำหรับส่งออก");return;}
-  const rows=vehicleRows.map(x=>({ "รหัสพนักงาน":x.employee_id,"ชื่อพนักงาน":x.employee_vehicle_roster?.name_th||"","แผนก":x.employee_vehicle_roster?.department||"","ประเภทรถ":x.vehicle_type,"หมายเลขทะเบียน":x.license_plate,"วันที่บันทึก":new Date(x.submitted_at).toLocaleString("th-TH",{timeZone:"Asia/Bangkok"})}));
-  const ws=XLSX.utils.json_to_sheet(rows);ws["!cols"]=[{wch:15},{wch:30},{wch:22},{wch:20},{wch:22},{wch:24}];
-  const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,"ทะเบียนรถพนักงาน");
+  const groups=new Map();
+  vehicleRows.forEach(x=>{
+    const key=String(x.employee_id||"");
+    if(!groups.has(key))groups.set(key,[]);
+    groups.get(key).push(x);
+  });
+  const wb=XLSX.utils.book_new();
+  [...groups.entries()].sort((a,b)=>a[0].localeCompare(b[0],"en",{numeric:true})).forEach(([employeeId,items])=>{
+    const emp=items[0].employee_vehicle_roster||{};
+    const name=emp.name_th||"ไม่ระบุชื่อ";
+    const aoa=[
+      ["ทะเบียนรถพนักงาน"],
+      ["ชื่อพนักงาน",name],
+      ["รหัสพนักงาน",employeeId],
+      ["แผนก",emp.department||"-"],
+      [],
+      ["รถยนต์"],
+      ["หมายเลขทะเบียน","วันที่บันทึก"]
+    ];
+    const cars=items.filter(x=>x.vehicle_type==="รถยนต์").sort((a,b)=>String(a.license_plate).localeCompare(String(b.license_plate),"th"));
+    if(cars.length)cars.forEach(x=>aoa.push([x.license_plate,new Date(x.submitted_at).toLocaleString("th-TH",{timeZone:"Asia/Bangkok"})]));
+    else aoa.push(["ไม่มีข้อมูล",""]);
+    aoa.push([],["รถจักรยานยนต์"],["หมายเลขทะเบียน","วันที่บันทึก"]);
+    const bikes=items.filter(x=>x.vehicle_type==="รถจักรยานยนต์").sort((a,b)=>String(a.license_plate).localeCompare(String(b.license_plate),"th"));
+    if(bikes.length)bikes.forEach(x=>aoa.push([x.license_plate,new Date(x.submitted_at).toLocaleString("th-TH",{timeZone:"Asia/Bangkok"})]));
+    else aoa.push(["ไม่มีข้อมูล",""]);
+    const ws=XLSX.utils.aoa_to_sheet(aoa);
+    ws["!cols"]=[{wch:28},{wch:26}];
+    ws["!merges"]=[{s:{r:0,c:0},e:{r:0,c:1}},{s:{r:5,c:0},e:{r:5,c:1}},{s:{r:cars.length+7,c:0},e:{r:cars.length+7,c:1}}];
+    const base=(name+"_"+employeeId).replace(/[\\/?*\\[\\]:]/g," ").trim();
+    let sheetName=base.slice(0,31)||("Employee_"+employeeId).slice(0,31);
+    let n=2;while(wb.SheetNames.includes(sheetName)){const suffix="_"+n++;sheetName=base.slice(0,31-suffix.length)+suffix;}
+    XLSX.utils.book_append_sheet(wb,ws,sheetName);
+  });
   XLSX.writeFile(wb,"Employee_Vehicle_Registration.xlsx");
 }
 function message(id,text,type="err"){const e=$(id);e.textContent=text;e.className="msg show "+type}
