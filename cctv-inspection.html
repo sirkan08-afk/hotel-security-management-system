@@ -286,7 +286,7 @@ async function persistCctvData(){
   const inspectionRows=[];
   Object.entries(db.inspections||{}).forEach(([date,records])=>Object.entries(records||{}).forEach(([id,r])=>{
    const no=cameraNumber(id);if(!no)return;
-   inspectionRows.push({camera_no:no,inspection_date:date,checks:r.checks||{},note:r.note||null,inspector_id:activeInspector.userId,inspector_name:r.inspector||activeInspector.fullName,inspector_code:r.inspectorId||activeInspector.employeeCode,updated_at:r.updatedAt||new Date().toISOString()});
+   inspectionRows.push({camera_no:no,inspection_date:date,checks:r.checks||{},note:r.note||null,inspector_id:r.inspectorUserId||activeInspector.userId,inspector_name:r.inspector||activeInspector.fullName,inspector_code:r.inspectorId||activeInspector.employeeCode,updated_at:r.updatedAt||new Date().toISOString()});
   }));
   if(inspectionRows.length){
    const {error:inspectionError}=await patrolAuth.from('cctv_inspections').upsert(inspectionRows,{onConflict:'inspection_date,camera_no'});
@@ -301,7 +301,7 @@ async function loadCctvRemoteData(){
  $('nvrSyncState').textContent='กำลังโหลดข้อมูลจาก Supabase...';
  const [cameraRes,inspectionRes,periodRes,incidentRes]=await Promise.all([
   patrolAuth.from('cctv_cameras').select('camera_no,camera_name,nvr_no,active').eq('active',true).order('camera_no'),
-  patrolAuth.from('cctv_inspections').select('camera_no,inspection_date,checks,note,inspector_name,inspector_code,updated_at').order('inspection_date'),
+  patrolAuth.from('cctv_inspections').select('camera_no,inspection_date,checks,note,inspector_id,inspector_name,inspector_code,updated_at').order('inspection_date'),
   patrolAuth.from('cctv_nvr_recording_periods').select('*').order('recording_start_at',{ascending:false}),
   patrolAuth.from('cctv_recording_incidents').select('*').order('start_at',{ascending:false})
  ]);
@@ -311,7 +311,7 @@ async function loadCctvRemoteData(){
  (inspectionRes.data||[]).forEach(r=>{
   const date=String(r.inspection_date).slice(0,10),id='No.'+String(r.camera_no).padStart(3,'0');
   db.inspections[date]??={};
-  db.inspections[date][id]={checks:r.checks||{},note:r.note||'',inspector:r.inspector_name||'',inspectorId:r.inspector_code||'',updatedAt:r.updated_at||''};
+  db.inspections[date][id]={checks:r.checks||{},note:r.note||'',inspector:r.inspector_name||'',inspectorId:r.inspector_code||'',inspectorUserId:r.inspector_id||null,updatedAt:r.updated_at||''};
  });
  nvrPeriods=periodRes.data||[];
  recordingIncidents=incidentRes.data||[];
@@ -339,7 +339,7 @@ function renderCameras(){
 }
 function openCheck(id){const camera=db.cameras.find(c=>c.id===id);if(!camera)return;checkingCameraId=id;const record=getRecord(currentDate(),id)||{checks:{},note:'',inspector:(activeInspector?.fullName||'')};$('checkModalTitle').textContent=camera.id+' — '+camera.name;$('checkModalSub').textContent=camera.area+' · วันที่ตรวจ '+currentDate();$('checkRows').innerHTML=CHECKS.map(c=>`<label class="check-row"><span><strong>${c.label}</strong><small>${c.detail}</small></span><select data-check="${c.key}"><option value="">ยังไม่ตรวจ</option><option value="pass">ปกติ / ผ่าน</option><option value="fail">ผิดปกติ / ไม่ผ่าน</option><option value="na">ไม่เกี่ยวข้อง (N/A)</option></select></label>`).join('');CHECKS.forEach(c=>{const sel=$('checkRows').querySelector('[data-check="'+c.key+'"]');sel.value=record.checks?.[c.key]||'';});$('checkNote').value=record.note||'';$('checkModal').classList.add('open');}
 function closeModal(id){$(id).classList.remove('open');}
-function saveCheck(){if(!identityReady||!activeInspector){toast('กรุณาเข้าสู่ระบบ Security Patrol ก่อนบันทึกผลตรวจ');return;}if(!checkingCameraId)return;const checks={};CHECKS.forEach(c=>checks[c.key]=$('checkRows').querySelector('[data-check="'+c.key+'"]').value);const date=currentDate();db.inspections[date]??={};db.inspections[date][checkingCameraId]={checks,note:$('checkNote').value.trim(),inspector:activeInspector.fullName,inspectorId:activeInspector.employeeCode,updatedAt:new Date().toISOString()};db.inspector=activeInspector.fullName;if(saveDb()){closeModal('checkModal');renderAll();toast('บันทึกผลตรวจกล้อง '+checkingCameraId+' แล้ว');}}
+function saveCheck(){if(!identityReady||!activeInspector){toast('กรุณาเข้าสู่ระบบ Security Patrol ก่อนบันทึกผลตรวจ');return;}if(!checkingCameraId)return;const checks={};CHECKS.forEach(c=>checks[c.key]=$('checkRows').querySelector('[data-check="'+c.key+'"]').value);const date=currentDate();db.inspections[date]??={};db.inspections[date][checkingCameraId]={checks,note:$('checkNote').value.trim(),inspector:activeInspector.fullName,inspectorId:activeInspector.employeeCode,inspectorUserId:activeInspector.userId,updatedAt:new Date().toISOString()};db.inspector=activeInspector.fullName;if(saveDb()){closeModal('checkModal');renderAll();toast('บันทึกผลตรวจกล้อง '+checkingCameraId+' แล้ว');}}
 function clearCheck(){if(!identityReady||!activeInspector){toast('กรุณาเข้าสู่ระบบ Security Patrol ก่อนแก้ไขผลตรวจ');return;}if(!checkingCameraId)return;if(!confirm('ต้องการล้างผลตรวจของกล้อง '+checkingCameraId+' ในวันที่ '+currentDate()+' หรือไม่?'))return;const date=currentDate();if(db.inspections[date]){delete db.inspections[date][checkingCameraId];if(!Object.keys(db.inspections[date]).length)delete db.inspections[date];}saveDb();closeModal('checkModal');renderAll();toast('ล้างผลตรวจแล้ว');}
 function openCameraEditor(id){editingCameraId=id||null;const c=id?db.cameras.find(x=>x.id===id):null;$('cameraModalTitle').textContent=c?'แก้ไขทะเบียนกล้อง':'เพิ่มกล้อง';$('editOriginalId').value=c?.id||'';$('cameraId').value=c?.id||'';$('cameraId').disabled=!!c;$('cameraName').value=c?.name||'';$('cameraArea').value=c?.area||'';$('cameraChannel').value=c?.channel||'';$('cameraMemo').value=c?.memo||'';$('deleteCameraBtn').style.display=c?'':'none';$('cameraModal').classList.add('open');}
 function saveCamera(){if(!identityReady||!activeInspector){toast('กรุณาเข้าสู่ระบบ Security Patrol ก่อนแก้ไขทะเบียนกล้อง');return;}const id=$('cameraId').value.trim().toUpperCase(),name=$('cameraName').value.trim(),area=$('cameraArea').value.trim();if(!id||!name||!area){toast('กรุณากรอกรหัสกล้อง ชื่อกล้อง และพื้นที่');return;}if(!editingCameraId&&db.cameras.some(c=>c.id.toLowerCase()===id.toLowerCase())){toast('รหัสกล้องนี้มีอยู่แล้ว');return;}const item={id,name,area,channel:$('cameraChannel').value.trim(),memo:$('cameraMemo').value.trim()};if(editingCameraId){const i=db.cameras.findIndex(c=>c.id===editingCameraId);if(i>=0)db.cameras[i]=item;}else db.cameras.push(item);if(saveDb()){closeModal('cameraModal');renderAll();toast('บันทึกทะเบียนกล้องแล้ว');}}
@@ -364,9 +364,8 @@ function renderNvrPanel(){
   const periods=nvrPeriods.filter(p=>Number(p.nvr_no)===nvr).sort((a,b)=>new Date(b.recording_start_at)-new Date(a.recording_start_at));
   const latest=periods[0],open=periods.find(p=>!p.recording_end_at);
   const start=$('nvr'+nvr+'Start'),end=$('nvr'+nvr+'End'),note=$('nvr'+nvr+'Note');
-  if(latest&&document.activeElement!==start)start.value=toLocalInput(latest.recording_start_at);
-  if(latest&&document.activeElement!==end)end.value=toLocalInput(latest.recording_end_at);
-  if(latest&&document.activeElement!==note)note.value=latest.notes||'';
+  if(open){if(document.activeElement!==start)start.value=toLocalInput(open.recording_start_at);if(document.activeElement!==end)end.value='';if(document.activeElement!==note)note.value=open.notes||'';}
+  else{if(document.activeElement!==start)start.value='';if(document.activeElement!==end)end.value='';if(document.activeElement!==note)note.value='';}
   $('nvr'+nvr+'State').innerHTML=open?'<span class="incident-open">● กำลังบันทึก</span> ตั้งแต่ '+escapeHtml(formatLocalDateTime(open.recording_start_at)):'<span class="muted">ช่วงล่าสุด: '+(latest?escapeHtml(formatLocalDateTime(latest.recording_start_at))+' – '+escapeHtml(formatLocalDateTime(latest.recording_end_at)):'ยังไม่มีข้อมูล')+'</span>';
  });
  const rows=nvrPeriods.map(p=>'<tr><td>NVR '+p.nvr_no+'</td><td>'+escapeHtml(formatLocalDateTime(p.recording_start_at))+'</td><td>'+escapeHtml(formatLocalDateTime(p.recording_end_at))+'</td><td>'+escapeHtml(p.created_by_name||'-')+'</td><td>'+escapeHtml(p.notes||'-')+'</td></tr>').join('');
@@ -398,7 +397,7 @@ async function saveNvrPeriod(nvr){
  const open=nvrPeriods.find(p=>Number(p.nvr_no)===nvr&&!p.recording_end_at);
  let result;
  if(open){
-  result=await patrolAuth.from('cctv_nvr_recording_periods').update({recording_start_at:startAt,recording_end_at:endAt,notes,created_by:activeInspector.userId,created_by_name:activeInspector.fullName}).eq('id',open.id);
+  result=await patrolAuth.from('cctv_nvr_recording_periods').update({recording_start_at:startAt,recording_end_at:endAt,notes}).eq('id',open.id);
  }else{
   result=await patrolAuth.from('cctv_nvr_recording_periods').insert({nvr_no:nvr,recording_start_at:startAt,recording_end_at:endAt,notes,created_by:activeInspector.userId,created_by_name:activeInspector.fullName});
  }
@@ -420,7 +419,7 @@ async function closeRecordingIncident(id){
  const item=recordingIncidents.find(x=>x.id===id);if(!item)return;
  const resolution=prompt('ระบุการแก้ไข / สาเหตุที่ทำให้กลับมาบันทึกได้: ',item.resolution||'');
  if(resolution===null)return;
- const {error}=await patrolAuth.from('cctv_recording_incidents').update({end_at:new Date().toISOString(),resolution,reported_by:activeInspector.userId,reported_by_name:activeInspector.fullName}).eq('id',id);
+ const {error}=await patrolAuth.from('cctv_recording_incidents').update({end_at:new Date().toISOString(),resolution}).eq('id',id);
  if(error){toast('ปิด Incident ไม่สำเร็จ: '+error.message);return;}
  await loadCctvRemoteData();toast('ปิด Recording Incident แล้ว');
 }
