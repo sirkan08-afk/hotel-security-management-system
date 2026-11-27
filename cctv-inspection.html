@@ -368,7 +368,7 @@ function renderNvrPanel(){
   else{if(document.activeElement!==start)start.value='';if(document.activeElement!==end)end.value='';if(document.activeElement!==note)note.value='';}
   $('nvr'+nvr+'State').innerHTML=open?'<span class="incident-open">● กำลังบันทึก</span> ตั้งแต่ '+escapeHtml(formatLocalDateTime(open.recording_start_at)):'<span class="muted">ช่วงล่าสุด: '+(latest?escapeHtml(formatLocalDateTime(latest.recording_start_at))+' – '+escapeHtml(formatLocalDateTime(latest.recording_end_at)):'ยังไม่มีข้อมูล')+'</span>';
  });
- const rows=nvrPeriods.map(p=>'<tr><td>NVR '+p.nvr_no+'</td><td>'+escapeHtml(formatLocalDateTime(p.recording_start_at))+'</td><td>'+escapeHtml(formatLocalDateTime(p.recording_end_at))+'</td><td>'+escapeHtml(p.created_by_name||'-')+'</td><td>'+escapeHtml(p.notes||'-')+'</td></tr>').join('');
+ const rows=nvrPeriods.map(p=>'<tr><td>NVR '+p.nvr_no+'</td><td>'+escapeHtml(formatLocalDateTime(p.recording_start_at))+'</td><td>'+(p.recording_end_at?escapeHtml(formatLocalDateTime(p.recording_end_at)):'ปัจจุบัน')+'</td><td>'+escapeHtml(p.created_by_name||'-')+'</td><td>'+escapeHtml(p.notes||'-')+'</td></tr>').join('');
  $('nvrPeriodHistory').innerHTML='<h3 style="font-size:13px;margin:0 0 8px">Recording Period History</h3><div class="data-table-wrap"><table class="data-table"><thead><tr><th>NVR</th><th>เริ่มบันทึก</th><th>สิ้นสุด</th><th>บันทึกโดย</th><th>หมายเหตุ</th></tr></thead><tbody>'+(rows||'<tr><td colspan="5">ยังไม่มีประวัติการบันทึก</td></tr>')+'</tbody></table></div>';
 }
 function refreshIncidentCameraOptions(){
