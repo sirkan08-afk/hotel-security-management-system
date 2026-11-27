@@ -499,7 +499,7 @@ async function loadCctvSummary(date){
   document.getElementById("cctvIncidentRows").innerHTML=incidentRows||'<tr><td colspan="6">ไม่มีประวัติเหตุขัดข้องการบันทึกภาพ</td></tr>';
   badge.textContent="ข้อมูลล่าสุด";badge.className="state-pill state-good";
   return {total:cameras.length,work,noWork,obstruct,unchecked,latestTime:latest,problems,periods,incidents};
- }catch(error){badge.textContent="โหลดไม่สำเร็จ";badge.className="state-pill state-warn";const msg="โหลดข้อมูล CCTV ไม่สำเร็จ: "+esc(error.message||error);document.getElementById("cctvProblemRows").innerHTML='<tr><td colspan="6">'+msg+'</td></tr>';document.getElementById("cctvRecordingRows").innerHTML='<tr><td colspan="5">'+msg+'</td></tr>';document.getElementById("cctvIncidentRows").innerHTML='<tr><td colspan="6">'+msg+'</td></tr>';throw error;}
+ }catch(error){badge.textContent="โหลดไม่สำเร็จ";badge.className="state-pill state-warn";const msg="โหลดข้อมูล CCTV ไม่สำเร็จ: "+esc(error.message||error);document.getElementById("cctvProblemRows").innerHTML='<tr><td colspan="6">'+msg+'</td></tr>';document.getElementById("cctvRecordingRows").innerHTML='<tr><td colspan="5">'+msg+'</td></tr>';document.getElementById("cctvIncidentRows").innerHTML='<tr><td colspan="6">'+msg+'</td></tr>';return {total:0,work:0,noWork:0,obstruct:0,unchecked:0,latestTime:null,problems:[],periods:[],incidents:[],error:String(error.message||error)};}
 }
 async function loadDailySummary(silent=false){
  if(reportPeriod==="monthly")return loadMonthlySummary(silent);if(reportPeriod==="weekly")return loadPeriodSummary(silent);
