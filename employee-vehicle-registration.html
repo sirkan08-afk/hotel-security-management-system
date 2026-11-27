@@ -31,7 +31,7 @@ const API=SB_URL+"/functions/v1/employee-vehicle-registration";
 let verified=null;
 const $=id=>document.getElementById(id);
 const isSecurityView=new URLSearchParams(location.search).get("view")==="security";
-if(isSecurityView){$("securitySection").classList.remove("hidden");}
+if(isSecurityView){$("securitySection").classList.remove("hidden");}else{$("securitySection").remove();}
 function message(id,text,type="err"){const e=$(id);e.textContent=text;e.className="msg show "+type}
 async function callApi(payload){const {data:{session}}=await db.auth.getSession();const headers={"Content-Type":"application/json","apikey":SB_KEY};if(session?.access_token)headers.Authorization="Bearer "+session.access_token;const r=await fetch(API,{method:"POST",headers,body:JSON.stringify(payload)});const j=await r.json();if(!r.ok)throw new Error(j.error||"ไม่สามารถทำรายการได้");return j}
 async function verifyEmployee(){const b=$("verifyBtn");b.disabled=true;try{const result=await callApi({action:"verify",employee_id:$("empid").value,name_th:$("nameth").value});verified=result.employee;$("employeeInfo").innerHTML="<b>"+esc(verified.name_th)+"</b><br>รหัสพนักงาน: "+esc(verified.employee_id)+(verified.department?"<br>แผนก: "+esc(verified.department):"");$("vehiclePanel").classList.remove("hidden");$("vehiclePanel").scrollIntoView({behavior:"smooth"});message("verifyMsg","ยืนยันข้อมูลสำเร็จ กรุณากรอกข้อมูลรถ","ok")}catch(e){message("verifyMsg",e.message)}finally{b.disabled=false}}
