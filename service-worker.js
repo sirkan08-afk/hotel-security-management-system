@@ -1,4 +1,4 @@
-const CACHE_NAME = "security-portal-shell-v39";
+const CACHE_NAME = "security-portal-shell-v40";
 const APP_SHELL = ["./", "./index.html", "./cctv-inspection.html", "./employee-vehicle-registration.html", "./manifest.webmanifest", "./icon.svg", "./1795254077344.jpg"];
 self.addEventListener("install", event => {
   event.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(APP_SHELL)).then(() => self.skipWaiting()));
