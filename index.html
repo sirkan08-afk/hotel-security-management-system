@@ -684,14 +684,15 @@ function renderMonthlyReport(data){
   return '<tr><td><b>'+txt(permit.permit_no)+'</b></td><td><b>'+txt(permit.company_name)+'</b><br>'+txt(permit.work_title)+'</td><td>'+txt(permit.work_location)+'</td><td>'+monthlyFormatDate(permit.start_date)+' – '+monthlyFormatDate(permit.end_date||permit.start_date)+'</td><td style="text-align:center">'+days.length+'</td><td style="text-align:center">'+(Number(permit.team_size)||0)+'</td><td>'+txt(statusLabels[permit.status]||permit.status)+'</td></tr>';
  }).join("");
  const cctvRows=(data.cctvMonthly?.issues||[]).map((item,index)=>{
-  const statusClass=item.status==="No Work"?"cctv-no-work":"cctv-obstruct";
-  return '<tr><td style="text-align:center">'+(index+1)+'</td><td>'+monthlyFormatDate(item.date)+'</td><td><b>'+txt(item.cameraNo)+'</b><br>'+txt(item.cameraName)+'</td><td>'+txt(item.nvr||"-")+'</td><td class="'+statusClass+'" style="text-align:center">'+txt(item.status)+'</td><td>'+txt(item.note||"-")+'</td><td>'+txt(item.inspector||"-")+'</td></tr>';
+  const statusClass=item.resolvedDate?"cctv-resolved":(item.status==="No Work"?"cctv-no-work":"cctv-obstruct");
+  const period=item.lastSeenDate&&item.lastSeenDate!==item.date?monthlyFormatDate(item.date)+" – "+monthlyFormatDate(item.lastSeenDate):monthlyFormatDate(item.date);
+  return '<tr><td style="text-align:center">'+(index+1)+'</td><td>'+period+'</td><td><b>'+txt(item.cameraNo)+'</b><br>'+txt(item.cameraName)+'</td><td>'+txt(item.nvr||"-")+'</td><td class="'+statusClass+'" style="text-align:center">'+txt(item.status)+'</td><td>'+txt(item.note||"-")+'</td><td>'+txt(item.resolvedDate?monthlyFormatDate(item.resolvedDate):"รอแก้ไข")+'</td><td>'+txt(item.inspector||"-")+'</td></tr>';
  }).join("");
  const cctvTotals=data.cctvMonthly?.summary||{noWork:0,obstruct:0,issues:0};
  const cctvSection='<section class="monthly-section"><h2>4. ผลการตรวจ CCTV ประจำเดือน</h2>'+
   (data.cctvMonthly?.error?'<div class="monthly-empty">ไม่สามารถดึงข้อมูล CCTV ได้: '+txt(data.cctvMonthly.error)+'</div>':
   '<div class="monthly-cctv-stats"><div class="monthly-cctv-stat"><b>'+Number(cctvTotals.issues||0)+'</b><span>รายการผิดปกติทั้งหมด</span></div><div class="monthly-cctv-stat"><b>'+Number(cctvTotals.noWork||0)+'</b><span>No Work</span></div><div class="monthly-cctv-stat"><b>'+Number(cctvTotals.obstruct||0)+'</b><span>Obstruct</span></div></div>'+
-  '<table class="monthly-table monthly-cctv-table"><thead><tr><th style="width:6%">ลำดับ</th><th style="width:12%">วันที่ตรวจ</th><th style="width:24%">รหัส / ชื่อกล้อง</th><th style="width:8%">NVR</th><th style="width:12%">สถานะ</th><th style="width:24%">หมายเหตุ</th><th style="width:14%">ผู้ตรวจ</th></tr></thead><tbody>'+(cctvRows||'<tr><td colspan="7" class="monthly-empty">ไม่พบรายการ No Work หรือ Obstruct ในเดือนนี้</td></tr>')+'</tbody></table>')+
+  '<table class="monthly-table monthly-cctv-table"><thead><tr><th style="width:5%">ลำดับ</th><th style="width:15%">วันที่พบปัญหา</th><th style="width:19%">รหัส / ชื่อกล้อง</th><th style="width:7%">NVR</th><th style="width:10%">สถานะล่าสุด</th><th style="width:19%">หมายเหตุ</th><th style="width:13%">วันที่แก้ไข</th><th style="width:12%">ผู้ตรวจ</th></tr></thead><tbody>'+(cctvRows||'<tr><td colspan="8" class="monthly-empty">ไม่พบรายการ No Work หรือ Obstruct ในเดือนนี้</td></tr>')+'</tbody></table>')+
   '</section>';
  const eventRows=(data.abnormalEvents||[]).map((event,index)=>{
   const date=new Date(event.occurredAt);
@@ -760,12 +761,40 @@ async function loadMonthlySummary(silent=false){
    if(cameraResult.error)throw cameraResult.error;
    if(inspectionResult.error)throw inspectionResult.error;
    const cameraMap=new Map((cameraResult.data||[]).map(camera=>[Number(camera.camera_no),camera]));
-   const issues=(inspectionResult.data||[]).flatMap(record=>{
-    const value=record.checks?.status||"";
-    if(value!=="no_work"&&value!=="obstruct")return [];
-    const camera=cameraMap.get(Number(record.camera_no))||{};
-    return [{date:String(record.inspection_date).slice(0,10),cameraNo:"No."+String(record.camera_no).padStart(3,"0"),cameraName:camera.camera_name||"ไม่พบชื่อกล้อง",nvr:camera.nvr_no?"NVR "+camera.nvr_no:"-",status:value==="no_work"?"No Work":"Obstruct",note:record.note||"",inspector:record.inspector_name||""}];
+   // Group repeated daily findings into one issue episode per camera.
+   // A subsequent "work" inspection closes the open episode and becomes its resolution date.
+   const byCamera=new Map();
+   (inspectionResult.data||[]).forEach(record=>{
+    const key=Number(record.camera_no);
+    if(!byCamera.has(key))byCamera.set(key,[]);
+    byCamera.get(key).push(record);
    });
+   const issues=[];
+   for(const [cameraNo,records] of byCamera){
+    records.sort((a,b)=>String(a.inspection_date).localeCompare(String(b.inspection_date)));
+    const camera=cameraMap.get(cameraNo)||{};
+    let openIssue=null;
+    const pushIssue=()=>{if(openIssue){issues.push({...openIssue});openIssue=null;}};
+    records.forEach(record=>{
+     const value=record.checks?.status||"";
+     const day=String(record.inspection_date).slice(0,10);
+     if(value==="no_work"||value==="obstruct"){
+      if(!openIssue){
+       openIssue={date:day,lastSeenDate:day,resolvedDate:null,cameraNo:"No."+String(cameraNo).padStart(3,"0"),cameraName:camera.camera_name||"ไม่พบชื่อกล้อง",nvr:camera.nvr_no?"NVR "+camera.nvr_no:"-",status:value==="no_work"?"No Work":"Obstruct",note:record.note||"",inspector:record.inspector_name||""};
+      }else{
+       openIssue.lastSeenDate=day;
+       openIssue.status=value==="no_work"?"No Work":"Obstruct";
+       if(record.note)openIssue.note=record.note;
+       if(record.inspector_name)openIssue.inspector=record.inspector_name;
+      }
+     }else if(value==="work"&&openIssue){
+      openIssue.resolvedDate=day;
+      pushIssue();
+     }
+    });
+    pushIssue();
+   }
+   issues.sort((a,b)=>a.date.localeCompare(b.date)||a.cameraNo.localeCompare(b.cameraNo));
    data.cctvMonthly={issues,summary:{issues:issues.length,noWork:issues.filter(x=>x.status==="No Work").length,obstruct:issues.filter(x=>x.status==="Obstruct").length}};
   }catch(cctvError){
    console.error("Monthly CCTV summary load failed:",cctvError);
